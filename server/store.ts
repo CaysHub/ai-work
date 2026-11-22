@@ -89,10 +89,6 @@ db.exec(`
     draft TEXT NOT NULL, created INTEGER NOT NULL, notified INTEGER, decided INTEGER
   );
   CREATE INDEX IF NOT EXISTS reply_reviews_state ON reply_reviews(state,created);
-  CREATE TABLE IF NOT EXISTS feishu_review_chats (
-    bot TEXT NOT NULL REFERENCES bots(id) ON DELETE CASCADE, version INTEGER NOT NULL,
-    target TEXT NOT NULL, since INTEGER NOT NULL, PRIMARY KEY(bot,version)
-  );
   CREATE TABLE IF NOT EXISTS wecom_commands (
     id TEXT PRIMARY KEY REFERENCES runs(id), original TEXT NOT NULL REFERENCES runs(id),
     instruction TEXT NOT NULL, decision TEXT, text TEXT, feedback INTEGER NOT NULL DEFAULT 0, direct_text TEXT
@@ -127,9 +123,9 @@ db.exec(`
   );
 `);
 const runColumns = new Set(db.prepare('PRAGMA table_info(runs)').all().map((column) => column.name));
-if (!db.prepare('PRAGMA table_info(reply_reviews)').all().some((column) => column.name === 'notice_receipt')) {
-  db.exec('ALTER TABLE reply_reviews ADD COLUMN notice_receipt TEXT');
-}
+const reviewColumns = new Set(db.prepare('PRAGMA table_info(reply_reviews)').all().map((column) => column.name));
+if (!reviewColumns.has('notice_receipt')) db.exec('ALTER TABLE reply_reviews ADD COLUMN notice_receipt TEXT');
+if (!reviewColumns.has('notice_channel')) db.exec('ALTER TABLE reply_reviews ADD COLUMN notice_channel TEXT');
 if (!runColumns.has('reply_text')) db.exec('ALTER TABLE runs ADD COLUMN reply_text TEXT');
 if (!runColumns.has('sent_at')) db.exec('ALTER TABLE runs ADD COLUMN sent_at INTEGER');
 if (!runColumns.has('progress_log')) db.exec("ALTER TABLE runs ADD COLUMN progress_log TEXT NOT NULL DEFAULT '[]'");

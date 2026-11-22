@@ -1,0 +1,619 @@
+[
+  {
+    "action": "feishu.doc.create",
+    "platform": "FEISHU",
+    "method": "POST",
+    "upstream": "docx/v1/documents",
+    "pathFields": [],
+    "queryFields": [],
+    "bodyFields": [
+      "folder_token",
+      "title"
+    ]
+  },
+  {
+    "action": "feishu.doc.info",
+    "platform": "FEISHU",
+    "method": "GET",
+    "upstream": "docx/v1/documents/{document_id}",
+    "pathFields": [
+      "document_id"
+    ],
+    "queryFields": [],
+    "bodyFields": []
+  },
+  {
+    "action": "feishu.doc.read",
+    "platform": "FEISHU",
+    "method": "GET",
+    "upstream": "docx/v1/documents/{document_id}/raw_content",
+    "pathFields": [
+      "document_id"
+    ],
+    "queryFields": [
+      "lang"
+    ],
+    "bodyFields": []
+  },
+  {
+    "action": "feishu.doc.blocks",
+    "platform": "FEISHU",
+    "method": "GET",
+    "upstream": "docx/v1/documents/{document_id}/blocks",
+    "pathFields": [
+      "document_id"
+    ],
+    "queryFields": [
+      "page_size",
+      "page_token",
+      "document_revision_id"
+    ],
+    "bodyFields": []
+  },
+  {
+    "action": "feishu.doc.convert",
+    "platform": "FEISHU",
+    "method": "POST",
+    "upstream": "docx/v1/documents/blocks/convert",
+    "pathFields": [],
+    "queryFields": [],
+    "bodyFields": [
+      "content_type",
+      "content"
+    ]
+  },
+  {
+    "action": "feishu.doc.append",
+    "platform": "FEISHU",
+    "method": "POST",
+    "upstream": "docx/v1/documents/{document_id}/blocks/{block_id}/children",
+    "pathFields": [
+      "document_id",
+      "block_id"
+    ],
+    "queryFields": [
+      "document_revision_id"
+    ],
+    "bodyFields": [
+      "children",
+      "index"
+    ]
+  },
+  {
+    "action": "feishu.doc.insert",
+    "platform": "FEISHU",
+    "method": "POST",
+    "upstream": "docx/v1/documents/{document_id}/blocks/{block_id}/descendant",
+    "pathFields": [
+      "document_id",
+      "block_id"
+    ],
+    "queryFields": [
+      "document_revision_id"
+    ],
+    "bodyFields": [
+      "children_id",
+      "descendants",
+      "index"
+    ]
+  },
+  {
+    "action": "feishu.doc.update",
+    "platform": "FEISHU",
+    "method": "PATCH",
+    "upstream": "docx/v1/documents/{document_id}/blocks/batch_update",
+    "pathFields": [
+      "document_id"
+    ],
+    "queryFields": [
+      "document_revision_id"
+    ],
+    "bodyFields": [
+      "requests"
+    ]
+  },
+  {
+    "action": "feishu.doc.delete_blocks",
+    "platform": "FEISHU",
+    "method": "DELETE",
+    "upstream": "docx/v1/documents/{document_id}/blocks/{block_id}/children/batch_delete",
+    "pathFields": [
+      "document_id",
+      "block_id"
+    ],
+    "queryFields": [
+      "document_revision_id"
+    ],
+    "bodyFields": [
+      "start_index",
+      "end_index"
+    ]
+  },
+  {
+    "action": "feishu.sheet.create",
+    "platform": "FEISHU",
+    "method": "POST",
+    "upstream": "sheets/v3/spreadsheets",
+    "pathFields": [],
+    "queryFields": [],
+    "bodyFields": [
+      "title",
+      "folder_token"
+    ]
+  },
+  {
+    "action": "feishu.sheet.sheets",
+    "platform": "FEISHU",
+    "method": "GET",
+    "upstream": "sheets/v3/spreadsheets/{spreadsheet_token}/sheets/query",
+    "pathFields": [
+      "spreadsheet_token"
+    ],
+    "queryFields": [],
+    "bodyFields": []
+  },
+  {
+    "action": "feishu.sheet.read",
+    "platform": "FEISHU",
+    "method": "GET",
+    "upstream": "sheets/v2/spreadsheets/{spreadsheet_token}/values_batch_get",
+    "pathFields": [
+      "spreadsheet_token"
+    ],
+    "queryFields": [
+      "ranges",
+      "valueRenderOption",
+      "dateTimeRenderOption"
+    ],
+    "bodyFields": []
+  },
+  {
+    "action": "feishu.sheet.write",
+    "platform": "FEISHU",
+    "method": "PUT",
+    "upstream": "sheets/v2/spreadsheets/{spreadsheet_token}/values",
+    "pathFields": [
+      "spreadsheet_token"
+    ],
+    "queryFields": [],
+    "bodyFields": [
+      "valueRange"
+    ]
+  },
+  {
+    "action": "feishu.bitable.create",
+    "platform": "FEISHU",
+    "method": "POST",
+    "upstream": "bitable/v1/apps",
+    "pathFields": [],
+    "queryFields": [],
+    "bodyFields": [
+      "name",
+      "folder_token",
+      "time_zone"
+    ]
+  },
+  {
+    "action": "feishu.bitable.tables",
+    "platform": "FEISHU",
+    "method": "GET",
+    "upstream": "bitable/v1/apps/{app_token}/tables",
+    "pathFields": [
+      "app_token"
+    ],
+    "queryFields": [
+      "page_size",
+      "page_token"
+    ],
+    "bodyFields": []
+  },
+  {
+    "action": "feishu.bitable.table_create",
+    "platform": "FEISHU",
+    "method": "POST",
+    "upstream": "bitable/v1/apps/{app_token}/tables",
+    "pathFields": [
+      "app_token"
+    ],
+    "queryFields": [],
+    "bodyFields": [
+      "table"
+    ]
+  },
+  {
+    "action": "feishu.bitable.fields",
+    "platform": "FEISHU",
+    "method": "GET",
+    "upstream": "bitable/v1/apps/{app_token}/tables/{table_id}/fields",
+    "pathFields": [
+      "app_token",
+      "table_id"
+    ],
+    "queryFields": [
+      "page_size",
+      "page_token",
+      "view_id",
+      "text_field_as_array"
+    ],
+    "bodyFields": []
+  },
+  {
+    "action": "feishu.bitable.field_create",
+    "platform": "FEISHU",
+    "method": "POST",
+    "upstream": "bitable/v1/apps/{app_token}/tables/{table_id}/fields",
+    "pathFields": [
+      "app_token",
+      "table_id"
+    ],
+    "queryFields": [],
+    "bodyFields": [
+      "field_name",
+      "type",
+      "property",
+      "ui_type",
+      "description"
+    ]
+  },
+  {
+    "action": "feishu.bitable.field_update",
+    "platform": "FEISHU",
+    "method": "PUT",
+    "upstream": "bitable/v1/apps/{app_token}/tables/{table_id}/fields/{field_id}",
+    "pathFields": [
+      "app_token",
+      "table_id",
+      "field_id"
+    ],
+    "queryFields": [],
+    "bodyFields": [
+      "field_name",
+      "type",
+      "property",
+      "ui_type",
+      "description"
+    ]
+  },
+  {
+    "action": "feishu.bitable.records",
+    "platform": "FEISHU",
+    "method": "GET",
+    "upstream": "bitable/v1/apps/{app_token}/tables/{table_id}/records",
+    "pathFields": [
+      "app_token",
+      "table_id"
+    ],
+    "queryFields": [
+      "page_size",
+      "page_token",
+      "view_id",
+      "filter",
+      "sort",
+      "field_names",
+      "text_field_as_array"
+    ],
+    "bodyFields": []
+  },
+  {
+    "action": "feishu.bitable.search_records",
+    "platform": "FEISHU",
+    "method": "POST",
+    "upstream": "bitable/v1/apps/{app_token}/tables/{table_id}/records/search",
+    "pathFields": [
+      "app_token",
+      "table_id"
+    ],
+    "queryFields": [
+      "page_size",
+      "page_token"
+    ],
+    "bodyFields": [
+      "view_id",
+      "field_names",
+      "sort",
+      "filter",
+      "automatic_fields"
+    ]
+  },
+  {
+    "action": "feishu.bitable.add_records",
+    "platform": "FEISHU",
+    "method": "POST",
+    "upstream": "bitable/v1/apps/{app_token}/tables/{table_id}/records/batch_create",
+    "pathFields": [
+      "app_token",
+      "table_id"
+    ],
+    "queryFields": [],
+    "bodyFields": [
+      "records"
+    ]
+  },
+  {
+    "action": "feishu.bitable.update_records",
+    "platform": "FEISHU",
+    "method": "POST",
+    "upstream": "bitable/v1/apps/{app_token}/tables/{table_id}/records/batch_update",
+    "pathFields": [
+      "app_token",
+      "table_id"
+    ],
+    "queryFields": [],
+    "bodyFields": [
+      "records"
+    ]
+  },
+  {
+    "action": "feishu.bitable.delete_records",
+    "platform": "FEISHU",
+    "method": "POST",
+    "upstream": "bitable/v1/apps/{app_token}/tables/{table_id}/records/batch_delete",
+    "pathFields": [
+      "app_token",
+      "table_id"
+    ],
+    "queryFields": [],
+    "bodyFields": [
+      "records"
+    ]
+  },
+  {
+    "action": "feishu.wiki.resolve",
+    "platform": "FEISHU",
+    "method": "GET",
+    "upstream": "wiki/v2/spaces/get_node",
+    "pathFields": [],
+    "queryFields": [
+      "token",
+      "obj_type"
+    ],
+    "bodyFields": []
+  },
+  {
+    "action": "feishu.wiki.nodes",
+    "platform": "FEISHU",
+    "method": "GET",
+    "upstream": "wiki/v2/spaces/{space_id}/nodes",
+    "pathFields": [
+      "space_id"
+    ],
+    "queryFields": [
+      "page_size",
+      "page_token",
+      "parent_node_token"
+    ],
+    "bodyFields": []
+  },
+  {
+    "action": "feishu.drive.files",
+    "platform": "FEISHU",
+    "method": "GET",
+    "upstream": "drive/v1/files",
+    "pathFields": [],
+    "queryFields": [
+      "page_size",
+      "page_token",
+      "folder_token",
+      "order_by",
+      "direction"
+    ],
+    "bodyFields": []
+  },
+  {
+    "action": "feishu.drive.copy",
+    "platform": "FEISHU",
+    "method": "POST",
+    "upstream": "drive/v1/files/{file_token}/copy",
+    "pathFields": [
+      "file_token"
+    ],
+    "queryFields": [],
+    "bodyFields": [
+      "name",
+      "type",
+      "folder_token"
+    ]
+  },
+  {
+    "action": "feishu.drive.upload",
+    "platform": "FEISHU",
+    "method": "UPLOAD",
+    "upstream": "drive/v1/files/upload_all",
+    "pathFields": [],
+    "queryFields": [],
+    "bodyFields": [
+      "parent_node"
+    ]
+  },
+  {
+    "action": "feishu.media.upload",
+    "platform": "FEISHU",
+    "method": "UPLOAD",
+    "upstream": "drive/v1/medias/upload_all",
+    "pathFields": [],
+    "queryFields": [],
+    "bodyFields": [
+      "parent_type",
+      "parent_node"
+    ]
+  },
+  {
+    "action": "feishu.import.create",
+    "platform": "FEISHU",
+    "method": "POST",
+    "upstream": "drive/v1/import_tasks",
+    "pathFields": [],
+    "queryFields": [],
+    "bodyFields": [
+      "file_extension",
+      "file_token",
+      "type",
+      "file_name",
+      "point"
+    ]
+  },
+  {
+    "action": "feishu.import.get",
+    "platform": "FEISHU",
+    "method": "GET",
+    "upstream": "drive/v1/import_tasks/{ticket}",
+    "pathFields": [
+      "ticket"
+    ],
+    "queryFields": [],
+    "bodyFields": []
+  },
+  {
+    "action": "feishu.export.create",
+    "platform": "FEISHU",
+    "method": "POST",
+    "upstream": "drive/v1/export_tasks",
+    "pathFields": [],
+    "queryFields": [],
+    "bodyFields": [
+      "file_extension",
+      "token",
+      "type",
+      "sub_id"
+    ]
+  },
+  {
+    "action": "feishu.export.get",
+    "platform": "FEISHU",
+    "method": "GET",
+    "upstream": "drive/v1/export_tasks/{ticket}",
+    "pathFields": [
+      "ticket"
+    ],
+    "queryFields": [
+      "token"
+    ],
+    "bodyFields": []
+  },
+  {
+    "action": "feishu.export.download",
+    "platform": "FEISHU",
+    "method": "DOWNLOAD",
+    "upstream": "drive/v1/export_tasks/file/{file_token}/download",
+    "pathFields": [
+      "file_token"
+    ],
+    "queryFields": [],
+    "bodyFields": [
+      "file_name"
+    ]
+  },
+  {
+    "action": "feishu.permission.check",
+    "platform": "FEISHU",
+    "method": "GET",
+    "upstream": "drive/v1/permissions/{token}/members/auth",
+    "pathFields": [
+      "token"
+    ],
+    "queryFields": [
+      "type",
+      "action"
+    ],
+    "bodyFields": []
+  },
+  {
+    "action": "wecom.doc.create",
+    "platform": "WECOM",
+    "method": "MCP",
+    "upstream": "create_doc",
+    "pathFields": [],
+    "queryFields": [],
+    "bodyFields": [
+      "doc_type",
+      "doc_name"
+    ]
+  },
+  {
+    "action": "wecom.doc.write",
+    "platform": "WECOM",
+    "method": "MCP",
+    "upstream": "edit_doc_content",
+    "pathFields": [],
+    "queryFields": [],
+    "bodyFields": [
+      "docid",
+      "content",
+      "content_type"
+    ]
+  },
+  {
+    "action": "wecom.smartsheet.add_sheet",
+    "platform": "WECOM",
+    "method": "MCP",
+    "upstream": "smartsheet_add_sheet",
+    "pathFields": [],
+    "queryFields": [],
+    "bodyFields": [
+      "docid",
+      "properties"
+    ]
+  },
+  {
+    "action": "wecom.smartsheet.sheets",
+    "platform": "WECOM",
+    "method": "MCP",
+    "upstream": "smartsheet_get_sheet",
+    "pathFields": [],
+    "queryFields": [],
+    "bodyFields": [
+      "docid"
+    ]
+  },
+  {
+    "action": "wecom.smartsheet.add_fields",
+    "platform": "WECOM",
+    "method": "MCP",
+    "upstream": "smartsheet_add_fields",
+    "pathFields": [],
+    "queryFields": [],
+    "bodyFields": [
+      "docid",
+      "sheet_id",
+      "fields"
+    ]
+  },
+  {
+    "action": "wecom.smartsheet.update_fields",
+    "platform": "WECOM",
+    "method": "MCP",
+    "upstream": "smartsheet_update_fields",
+    "pathFields": [],
+    "queryFields": [],
+    "bodyFields": [
+      "docid",
+      "sheet_id",
+      "fields"
+    ]
+  },
+  {
+    "action": "wecom.smartsheet.fields",
+    "platform": "WECOM",
+    "method": "MCP",
+    "upstream": "smartsheet_get_fields",
+    "pathFields": [],
+    "queryFields": [],
+    "bodyFields": [
+      "docid",
+      "sheet_id"
+    ]
+  },
+  {
+    "action": "wecom.smartsheet.add_records",
+    "platform": "WECOM",
+    "method": "MCP",
+    "upstream": "smartsheet_add_records",
+    "pathFields": [],
+    "queryFields": [],
+    "bodyFields": [
+      "docid",
+      "sheet_id",
+      "records"
+    ]
+  }
+]

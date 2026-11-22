@@ -103,13 +103,6 @@ export function generatedReplyFile(runId: string) {
   return get<{ id: string; name: string }>("SELECT id,name FROM documents WHERE run_id=? AND source='generated' AND lower(name) LIKE '%.docx' ORDER BY rowid DESC LIMIT 1", runId);
 }
 
-export function readGeneratedReplyFile(owner: string, runId: string, id: string, maxBytes: number) {
-  const { row, file } = ownedFile(owner, id);
-  if (row.run_id !== runId || row.source !== 'generated') throw httpError(404, '找不到本轮生成的文件');
-  if (row.bytes > maxBytes) throw httpError(413, '企微文件超过上传大小限制');
-  return { name: row.name, bytes: readFileSync(file) };
-}
-
 // Old workspaces have file paths but no original upload or run metadata.
 export function importWorkspaceDocuments(owner: string, chatId?: string) {
   const marker = get('SELECT 1 FROM document_imports WHERE owner=?', owner);

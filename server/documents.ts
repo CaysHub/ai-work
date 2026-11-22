@@ -152,11 +152,11 @@ function runDws(secrets: Secrets, owner: string, operation: string[], { content 
   for (const key of Object.keys(env)) {
     if (/^DWS_(ACCESS_TOKEN|TOKEN)$/i.test(key) || (download && config.dwsDownloadProxy && /^(HTTPS?|NO)_PROXY$/i.test(key))) delete env[key];
   }
-  if (secrets.userToken) {
-    env.DWS_CONFIG_DIR = join(config.dataDir, 'dws');
-    env.DWS_ACCESS_TOKEN = secrets.userToken;
-  } else if (profile) {
+  env.DWS_CONFIG_DIR = config.dwsConfigDir;
+  if (profile) {
     args.unshift('--profile', profile.name);
+  } else if (secrets.userToken) {
+    env.DWS_ACCESS_TOKEN = secrets.userToken;
   }
   if (download && config.dwsDownloadProxy) {
     env.HTTP_PROXY = config.dwsDownloadProxy;
@@ -166,9 +166,13 @@ function runDws(secrets: Secrets, owner: string, operation: string[], { content 
   signal?.throwIfAborted();
   return new Promise<DwsResult>((resolve, reject) => {
     const child = spawn(config.dwsExecutable, args, {
-      env, signal, windowsHide: true, shell: false, timeout: 45000, stdio: ['pipe', 'pipe', 'ignore'],
+      env, signal, windowsHide: true, shell: false, timeout: 45000, stdio: ['pipe', 'pipe', 'pipe'],
     });
     let output = '';
+    let stderr = '';
+    child.stderr.setEncoding('utf8').on('data', (chunk) => {
+      if (stderr.length < 16000) stderr += chunk.slice(0, 16000 - stderr.length);
+    });
     child.stdout.setEncoding('utf8').on('data', (chunk) => {
       output += chunk;
       if (output.length > 2_000_000) {
@@ -185,9 +189,11 @@ function runDws(secrets: Secrets, owner: string, operation: string[], { content 
         if (code !== 0 || !data || typeof data !== 'object' || data.ok === false || data.success === false || data.status === 'error') throw new Error();
         resolve(data);
       } catch {
-        reject(new Error(download
-          ? '钉钉文件下载失败' + (config.dwsDownloadProxy ? '，请检查代理连通性或文件权限' : '，请检查文件权限')
-          : '钉钉云文档操作失败，请核对本人授权及文档权限'));
+        const authRejected = /"server_error_code"\s*:\s*"TOKEN_VERIFIED_FAILED"/.test(stderr);
+        reject(Object.assign(new Error(authRejected
+          ? '钉钉文档服务拒绝当前授权（TOKEN_VERIFIED_FAILED），请核对组织的 CLI 数据访问权限和文档授权'
+          : download ? '钉钉文件下载失败，请检查代理连通性或文件权限'
+            : '钉钉文档接口未完成本次操作'), { authRejected }));
       }
     });
   });
@@ -266,9 +272,10 @@ type ReplyDocument = { title: string; content: string; state: string; url: strin
 export async function publishReplyDocument(bot: Pick<LiveBot, 'id' | 'owner' | 'version' | 'platform'>, id: string) {
   const doc = get<ReplyDocument>('SELECT title,content,state,url FROM reply_documents WHERE id=?', id);
   if (!doc) return '';
-  const missingLink = '云文档暂未取得可用链接。';
-  if (doc.state !== 'draft') return doc.url ?? missingLink;
-  if (!run("UPDATE reply_documents SET state='publishing' WHERE id=? AND state='draft'", id).changes) return missingLink;
+  if (doc.state === 'published' && doc.url) return doc.url;
+  if (doc.state !== 'draft' || !run("UPDATE reply_documents SET state='publishing' WHERE id=? AND state='draft'", id).changes) {
+    throw new Error('已有云文档创建尝试，需核对原文档及链接');
+  }
   try {
     const secrets = documentConnection({ bot: bot.id, owner: bot.owner, version: bot.version }, bot.platform);
     const adapter = { wecom: wecomDoc, feishu: feishuDoc, dingtalk: dwsDoc }[bot.platform];
@@ -285,9 +292,10 @@ export async function publishReplyDocument(bot: Pick<LiveBot, 'id' | 'owner' | '
     }
     run("UPDATE reply_documents SET state='published',url=? WHERE id=?", url.href, id);
     return url.href;
-  } catch {
-    run("UPDATE reply_documents SET state='unconfirmed' WHERE id=?", id);
-    return missingLink;
+  } catch (error) {
+    const rejectedAuthorization = error instanceof Error && 'authRejected' in error && error.authRejected === true;
+    run("UPDATE reply_documents SET state=? WHERE id=? AND state='publishing'", rejectedAuthorization ? 'draft' : 'unconfirmed', id);
+    throw error;
   }
 }
 export async function documentAction(row: AgentRun, callId: string | null, args: DocumentArgs): Promise<unknown> {
@@ -322,7 +330,11 @@ export async function searchCloudDocuments(row: AgentRun, keywords: unknown) {
       runDws(secrets, row.owner, ['doc', '+search', '--query=' + query, '--limit', '15'])));
     const successful = results.flatMap((result) =>
       result.status === 'fulfilled' && Array.isArray(result.value.documents) ? [result.value] : []);
-    if (!successful.length) throw new Error('钉钉云文档检索失败');
+    if (!successful.length) {
+      const authFailure = results.find((item) => item.status === 'rejected' && item.reason?.authRejected);
+      if (authFailure?.status === 'rejected') throw authFailure.reason;
+      throw new Error('钉钉云文档检索未完成');
+    }
     const matches = new Map<string, DwsSearchItem>();
     for (const data of successful) {
       for (const doc of data.documents ?? []) {

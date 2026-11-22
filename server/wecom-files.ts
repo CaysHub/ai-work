@@ -1,6 +1,6 @@
 import { config } from './config.ts';
 import { errorMessage } from '../shared/types.ts';
-import { attachDocuments, readGeneratedReplyFile, saveWecomAttachment } from './document-library.ts';
+import { attachDocuments, saveWecomAttachment } from './document-library.ts';
 import { platformSignal, wecomCall } from './platform.ts';
 import type { HistoryMessage } from './platform.ts';
 import { all, get, run, transaction, unseal } from './store.ts';
@@ -75,31 +75,4 @@ export async function fetchRunWecomFiles(row: AgentRun, original?: string) {
     }
   }
   return problems;
-}
-
-export async function uploadWecomReplyFile(bot: LiveBot, runId: string, documentId: string) {
-  const file = readGeneratedReplyFile(bot.owner, runId, documentId, fileLimit);
-  const result = await wecomCall<{ media_id?: string }>(bot.secrets.documentMcp, 'doc', 'media_upload',
-    { type: 'file', file_name: file.name, base64_content: file.bytes.toString('base64') });
-  if (!result.media_id) throw new Error('企微未返回上传媒体 ID');
-  return result.media_id;
-}
-
-export async function sendWecomReplyFile(bot: LiveBot, target: string, mediaId: string) {
-  try {
-    const receipt = await wecomCall<{ errcode?: number; msgid?: string; message_id?: string }>(
-      bot.secrets.messageMcp, 'msg', 'message_aibot_send', { chat_id: target, msg_type: 'file', file: { media_id: mediaId } });
-    if (Number(receipt.errcode) !== 0 && !receipt.msgid && !receipt.message_id) throw new Error('企微文件发送结果未获确认');
-    return receipt.msgid ?? receipt.message_id ?? null;
-  } catch (error) {
-    if (error instanceof Error && 'providerRejected' in error && error.providerRejected) {
-      if ('providerCode' in error && error.providerCode === 853008) {
-        throw Object.assign(new Error('企微拒绝发送附件（853008）。请收件人先给本连接的企微智能机器人发一条消息', { cause: error }), {
-          rejected: true,
-        });
-      }
-      Object.assign(error, { rejected: true });
-    }
-    throw error;
-  }
 }

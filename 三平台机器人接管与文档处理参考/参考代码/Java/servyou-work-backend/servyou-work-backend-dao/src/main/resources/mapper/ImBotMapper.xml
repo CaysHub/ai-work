@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.servyou.work.dao.mapper.ImBotMapper">
+ <select id="databaseNow" resultType="java.time.LocalDateTime">SELECT CURRENT_TIMESTAMP(6)</select>
+ <update id="claim">
+  UPDATE sw_im_bot SET owner_node=#{node},owner_version=owner_version+1,
+   lease_until=TIMESTAMPADD(SECOND,#{seconds},CURRENT_TIMESTAMP(6))
+  WHERE id=#{id} AND (lease_until IS NULL OR lease_until &lt;= CURRENT_TIMESTAMP(6))
+ </update>
+ <update id="renew">
+  UPDATE sw_im_bot SET lease_until=TIMESTAMPADD(SECOND,#{seconds},CURRENT_TIMESTAMP(6))
+  WHERE id=#{id} AND owner_node=#{node} AND owner_version=#{version} AND lease_until &gt; CURRENT_TIMESTAMP(6)
+ </update>
+ <update id="release">
+  UPDATE sw_im_bot SET owner_node=NULL,lease_until=NULL
+  WHERE id=#{id} AND owner_node=#{node} AND owner_version=#{version}
+ </update>
+ <update id="connection">
+  UPDATE sw_im_bot SET connection_state=#{state},last_error=#{error},last_heartbeat_at=CURRENT_TIMESTAMP(6)
+  WHERE id=#{id} AND owner_node=#{node} AND owner_version=#{version} AND lease_until &gt; CURRENT_TIMESTAMP(6)
+ </update>
+ <update id="takeoverCheckpoint">
+  UPDATE sw_im_bot SET takeover_config_cipher=#{cipher}
+  WHERE id=#{bot.id} AND identity_mode='USER' AND enabled=1 AND config_version=#{bot.configVersion}
+   AND owner_node=#{node} AND owner_version=#{version} AND lease_until &gt; CURRENT_TIMESTAMP(6)
+   AND takeover_config_cipher=#{previous}
+ </update>
+ <update id="pauseTakeover">
+  UPDATE sw_im_bot SET enabled=0,connection_state='ERROR',last_error=#{error},config_version=config_version+1
+  WHERE id=#{bot.id} AND identity_mode='USER' AND config_version=#{bot.configVersion}
+   AND owner_node=#{node} AND owner_version=#{version} AND lease_until &gt; CURRENT_TIMESTAMP(6)
+ </update>
+</mapper>

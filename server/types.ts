@@ -59,6 +59,8 @@ export interface InboundMessage {
   sender?: string;
 }
 
+export type ReviewSender = (text: string, id: string) => Promise<string | null>;
+
 export interface ReplyReview {
   id: string;
   state: ReviewState;

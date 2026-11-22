@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.servyou.work.dao.mapper.ImBotSessionMapper">
+ <update id="takeoverCheckpoint">
+  UPDATE sw_im_bot_session SET takeover_state=#{row.takeoverState},last_interaction_at=CURRENT_TIMESTAMP(6)
+  WHERE id=#{row.id} AND bot_id=#{bot.id}
+   AND EXISTS (SELECT 1 FROM sw_im_bot b WHERE b.id=sw_im_bot_session.bot_id AND b.identity_mode='USER'
+    AND b.enabled=1 AND b.config_version=#{bot.configVersion} AND b.owner_node=#{node}
+    AND b.owner_version=#{version} AND b.lease_until &gt; CURRENT_TIMESTAMP(6))
+ </update>
+</mapper>

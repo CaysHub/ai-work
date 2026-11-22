@@ -1,0 +1,1301 @@
+[
+  {
+    "date": "2026-11-16",
+    "topic": "企业微信与飞书机器人集成",
+    "record": "后端最终回归.log",
+    "testSummaries": [],
+    "buildResults": [],
+    "recordType": "原始回归记录"
+  },
+  {
+    "date": "2026-11-16",
+    "topic": "企业微信与飞书机器人集成",
+    "record": "通用chat实库与契约回归.log",
+    "testSummaries": [
+      {
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMySqlIntegrationTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotContractTest"
+      },
+      {
+        "tests": 16,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-16",
+    "topic": "企业微信与飞书机器人集成",
+    "record": "企微Java适配器验证.log",
+    "testSummaries": [],
+    "buildResults": [],
+    "recordType": "真实平台适配器日志"
+  },
+  {
+    "date": "2026-11-16",
+    "topic": "企业微信与飞书机器人集成",
+    "record": "飞书Java适配器验证.log",
+    "testSummaries": [],
+    "buildResults": [],
+    "recordType": "真实平台适配器日志"
+  },
+  {
+    "date": "2026-11-17",
+    "topic": "企业微信与飞书机器人文档输入输出",
+    "record": "后端与真实MySQL回归.log",
+    "testSummaries": [
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMapperRegistrationTest"
+      },
+      {
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMySqlIntegrationTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotContractTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotFileTest"
+      },
+      {
+        "tests": 22,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-17",
+    "topic": "企业微信与飞书机器人文档输入输出",
+    "record": "流式交互与真实MySQL回归.log",
+    "testSummaries": [
+      {
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ConversationMarkdownAssemblerTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotInteractionTest"
+      },
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMapperRegistrationTest"
+      },
+      {
+        "tests": 19,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMySqlIntegrationTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotContractTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotFileTest"
+      },
+      {
+        "tests": 35,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-17",
+    "topic": "企业微信与飞书机器人文档输入输出",
+    "record": "企微文件适配器真实联调.log",
+    "testSummaries": [
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotDocumentLiveIntegrationTest"
+      },
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-17",
+    "topic": "企业微信与飞书机器人文档输入输出",
+    "record": "飞书流式适配器真实联调.log",
+    "testSummaries": [
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotStreamingLiveIntegrationTest"
+      },
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-17",
+    "topic": "机器人检测降频",
+    "record": "JDK8-回归与真实MySQL.log",
+    "testSummaries": [
+      {
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ConversationMarkdownAssemblerTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotInteractionTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "FeishuPostMessageTest"
+      },
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMapperRegistrationTest"
+      },
+      {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMySqlIntegrationTest"
+      },
+      {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotContractTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotFileTest"
+      },
+      {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ExpertSessionPaginationTest"
+      },
+      {
+        "tests": 46,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-17",
+    "topic": "企微文件与文字无回复排查",
+    "record": "移除特殊比较后真实MySQL回归.log",
+    "testSummaries": [
+      {
+        "tests": 3,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "DatabaseBootstrapSchemaContractTest"
+      },
+      {
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ConversationMarkdownAssemblerTest"
+      },
+      {
+        "tests": 6,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ExpertRoutingFoundationDatabaseTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotInteractionTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "FeishuPostMessageTest"
+      },
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMapperRegistrationTest"
+      },
+      {
+        "tests": 21,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMySqlIntegrationTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotContractTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotFileTest"
+      },
+      {
+        "tests": 92,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ExpertTaskRuntimeDatabaseTest"
+      },
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImageGenerationTenantSchemaContractTest"
+      },
+      {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ExpertSessionPaginationTest"
+      },
+      {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ExpertAppRemovalDatabaseTest"
+      },
+      {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ExpertBusinessContractTest"
+      },
+      {
+        "tests": 151,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "buildResults": [
+      "BUILD FAILURE"
+    ]
+  },
+  {
+    "date": "2026-11-17",
+    "topic": "企微文件与文字无回复排查",
+    "record": "完整拦截器与真实MySQL最终回归.log",
+    "testSummaries": [
+      {
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ConversationMarkdownAssemblerTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotInteractionTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "FeishuPostMessageTest"
+      },
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMapperRegistrationTest"
+      },
+      {
+        "tests": 21,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMySqlIntegrationTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotContractTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotFileTest"
+      },
+      {
+        "tests": 40,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-17",
+    "topic": "企微文件与文字无回复排查",
+    "record": "最终运行SQL与真实MySQL回归.log",
+    "testSummaries": [
+      {
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ConversationMarkdownAssemblerTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotInteractionTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "FeishuPostMessageTest"
+      },
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMapperRegistrationTest"
+      },
+      {
+        "tests": 21,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMySqlIntegrationTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotContractTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotFileTest"
+      },
+      {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ExpertSessionPaginationTest"
+      },
+      {
+        "tests": 42,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-17",
+    "topic": "机器人云文档操作",
+    "record": "七类能力交付回归与实库验证.log",
+    "testSummaries": [
+      {
+        "tests": 16,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ConversationFileOwnershipServiceTest"
+      },
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotWecomToolLiveIntegrationTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotInteractionTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "FeishuPostMessageTest"
+      },
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMapperRegistrationTest"
+      },
+      {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMySqlIntegrationTest"
+      },
+      {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotCloudDocumentTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotToolTest"
+      },
+      {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotContractTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotFileTest"
+      },
+      {
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "McpSseResponseReaderTest"
+      },
+      {
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "McpSharedClientProtocolTest"
+      },
+      {
+        "tests": 85,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-17",
+    "topic": "机器人云文档操作",
+    "record": "七类接口契约最终验证.log",
+    "testSummaries": [
+      {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotContractTest"
+      },
+      {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-17",
+    "topic": "机器人云文档操作",
+    "record": "企微七类回归与实库验证.log",
+    "testSummaries": [
+      {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotWecomToolLiveIntegrationTest"
+      },
+      {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-18",
+    "topic": "真人会话接管验证",
+    "record": "后端回归与真实MySQL日志.txt",
+    "testSummaries": [
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotInteractionTest"
+      },
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMapperRegistrationTest"
+      },
+      {
+        "tests": 33,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1,
+        "testClass": "ImBotMySqlIntegrationTest"
+      },
+      {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotCloudDocumentTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotToolTest"
+      },
+      {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotContractTest"
+      },
+      {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotTakeoverTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotFileTest"
+      },
+      {
+        "tests": 54,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-18",
+    "topic": "真人会话接管验证",
+    "record": "接管最终回归日志.txt",
+    "testSummaries": [
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotInteractionTest"
+      },
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMapperRegistrationTest"
+      },
+      {
+        "tests": 33,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1,
+        "testClass": "ImBotMySqlIntegrationTest"
+      },
+      {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotCloudDocumentTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotToolTest"
+      },
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotTakeoverPlatformLiveIntegrationTest"
+      },
+      {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotContractTest"
+      },
+      {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotTakeoverTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotFileTest"
+      },
+      {
+        "tests": 57,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-18",
+    "topic": "真人会话接管验证",
+    "record": "接管最后变更回归日志.txt",
+    "testSummaries": [],
+    "buildResults": [],
+    "reportSummary": {
+      "tests": 17,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "mysqlTakeoverTests": 5
+    }
+  },
+  {
+    "date": "2026-11-18",
+    "topic": "机器人配置工具",
+    "record": "媒体支持-最终验证.log",
+    "testSummaries": [
+      {
+        "tests": 14,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "RuntimeMetricCollectorTest"
+      },
+      {
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMySqlIntegrationTest"
+      },
+      {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMediaTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotTakeoverPlatformLiveIntegrationTest"
+      },
+      {
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotContractTest"
+      },
+      {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotTakeoverTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotFileTest"
+      },
+      {
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "AudioPcmConversionServiceTest"
+      },
+      {
+        "tests": 55,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-18",
+    "topic": "机器人配置工具",
+    "record": "企微空结果修复后-真实接口与MySQL.log",
+    "testSummaries": [
+      {
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMySqlIntegrationTest"
+      },
+      {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotTakeoverPlatformLiveIntegrationTest"
+      },
+      {
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotContractTest"
+      },
+      {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotTakeoverTest"
+      },
+      {
+        "tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-18",
+    "topic": "机器人配置工具",
+    "record": "OAuth修复-Maven检查.log",
+    "testSummaries": [
+      {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotContractTest"
+      },
+      {
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotTakeoverTest"
+      },
+      {
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-18",
+    "topic": "机器人配置工具",
+    "record": "机器人模块开关-编译与装配测试.log",
+    "testSummaries": [
+      {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotModuleConfigTest"
+      },
+      {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ThreadPoolConfigTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotInteractionTest"
+      },
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMapperRegistrationTest"
+      },
+      {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotCloudDocumentTest"
+      },
+      {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMediaTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotToolTest"
+      },
+      {
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotContractTest"
+      },
+      {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotTakeoverTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotFileTest"
+      },
+      {
+        "tests": 42,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-19",
+    "topic": "多人接管",
+    "record": "最终回归.log",
+    "testSummaries": [
+      {
+        "tests": 40,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1,
+        "testClass": "ImBotMySqlIntegrationTest"
+      },
+      {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotTakeoverTest"
+      },
+      {
+        "tests": 50,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-19",
+    "topic": "钉钉机器人",
+    "record": "backend-regression.log",
+    "testSummaries": [
+      {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMySqlIntegrationTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1,
+        "testClass": "DingTalkBotChannelTest"
+      },
+      {
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotTakeoverTest"
+      },
+      {
+        "tests": 17,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-19",
+    "topic": "钉钉机器人",
+    "record": "真实MySQL.log",
+    "testSummaries": [
+      {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMySqlIntegrationTest"
+      },
+      {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-20",
+    "topic": "钉钉机器人",
+    "record": "backend-regression.log",
+    "testSummaries": [
+      {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMySqlIntegrationTest"
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1,
+        "testClass": "DingTalkBotChannelTest"
+      },
+      {
+        "tests": 14,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotTakeoverTest"
+      },
+      {
+        "tests": 21,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-20",
+    "topic": "群聊多人接管",
+    "record": "后端最终回归.log",
+    "testSummaries": [
+      {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMySqlIntegrationTest"
+      },
+      {
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotTakeoverTest"
+      },
+      {
+        "tests": 19,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-20",
+    "topic": "企微身份互斥",
+    "record": "后端最终回归.log",
+    "testSummaries": [
+      {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMySqlIntegrationTest"
+      },
+      {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotCloudDocumentTest"
+      },
+      {
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotTakeoverTest"
+      },
+      {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  },
+  {
+    "date": "2026-11-20",
+    "topic": "机器人应用公共配置",
+    "record": "后端最终回归.log",
+    "testSummaries": [
+      {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotMySqlIntegrationTest"
+      },
+      {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotCloudDocumentTest"
+      },
+      {
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testClass": "ImBotTakeoverTest"
+      },
+      {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "buildResults": [
+      "BUILD SUCCESS"
+    ]
+  }
+]

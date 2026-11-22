@@ -5,7 +5,7 @@ type ModelInput = { messages: { role: string; content: string }[]; stream: boole
 export async function mockModel(server: Server) {
   const held = { started: false, aborted: false };
   server.on('request', async (request, response) => {
-    if (request.url?.startsWith('/feishu/') || request.url?.startsWith('/wecom/')) return;
+    if (/^\/(feishu|wecom|robot|dingtalk)\//.test(request.url ?? '')) return;
     let payload = '';
     for await (const chunk of request) payload += chunk;
     if (request.url !== '/v1/chat/completions' || request.headers.authorization !== 'Bearer local-test-only') {

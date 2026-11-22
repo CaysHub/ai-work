@@ -1,0 +1,101 @@
+{
+  "企微飞书指定会话读取": {
+    "passedCount": 4,
+    "newMessagesSent": 0,
+    "scope": [
+      "WECOM/P2P",
+      "WECOM/GROUP",
+      "FEISHU/P2P",
+      "FEISHU/GROUP"
+    ]
+  },
+  "企微飞书测试群本人发送": {
+    "assertionCount": 10,
+    "passedCount": 10,
+    "scope": [
+      "WECOM/GROUP",
+      "FEISHU/GROUP"
+    ]
+  },
+  "钉钉DWS文档": {
+    "mode": "DWS CLI",
+    "create": {
+      "ok": true,
+      "complete": true,
+      "verified": true
+    },
+    "append": {
+      "ok": true,
+      "complete": true,
+      "verified": true
+    },
+    "fetch": {
+      "status": "success",
+      "complete": true,
+      "sameDocument": true,
+      "initialContentFound": true,
+      "appendedContentFound": true
+    }
+  },
+  "飞书客户端文档回链": {
+    "date": "2026-11-20",
+    "basis": "客户端核对记录",
+    "conversation": "P2P/self",
+    "documentCreated": true,
+    "linkVisibleInConversation": true,
+    "openedFromConversation": true,
+    "bodyMatched": true
+  },
+  "钉钉Java个人通道": {
+    "groupReads": 3,
+    "directReads": 1,
+    "directSendReceipt": "ACCEPTED",
+    "directMessageReadBack": true,
+    "refreshSucceeded": true,
+    "basis": "真人接管与验证报告及适配器实测日志"
+  },
+  "企微doc MCP": {
+    "date": "2026-11-17",
+    "create": true,
+    "overwrite": true,
+    "asyncReadback": true,
+    "bodyMatched": true,
+    "evidence": "企微七类能力交付验证报告"
+  },
+  "飞书应用文档": {
+    "date": "2026-11-17",
+    "create": true,
+    "markdownConverted": true,
+    "nestedBlocksWritten": true,
+    "bodyMatched": true,
+    "evidence": "企微七类能力交付验证报告所列飞书前轮实测"
+  },
+  "企微七类MCP": {
+    "date": "2026-11-17",
+    "readOnlyCallPassed": true,
+    "catalogCounts": {
+      "doc": 63,
+      "msg": 6,
+      "todo": 6,
+      "schedule": 9,
+      "meeting": 10,
+      "disk": 10,
+      "contact": 1
+    },
+    "evidence": "企微七类能力交付验证报告"
+  },
+  "附件与原生文件": {
+    "wecomBotOutboundBytes": 873921,
+    "wecomBotPlatformAccepted": true,
+    "wecomUserInputFormats": [
+      "XLSX",
+      "JPEG",
+      "AMR"
+    ],
+    "wecomAmrConvertedToPcm": true,
+    "feishuBotRoundTripBytes": 125,
+    "feishuBotBytesMatched": true,
+    "feishuUserExcelTextReply": true,
+    "evidence": "开发与真实验证记录、文档图片录音输入验证、飞书文档交付修复记录"
+  }
+}

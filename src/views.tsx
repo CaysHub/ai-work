@@ -117,7 +117,7 @@ const platforms: { value: Platform; label: string; short: string; note: string }
   { value: 'dingtalk', label: '钉钉', short: '钉', note: 'Stream 机器人、本人会话与 DWS 文档' },
 ];
 type BotForm = { name: string; platform: Platform; mode: BotMode; enabled: boolean; secrets?: Partial<Record<Platform, BotCredentials>>;
-  targets?: string; employeeId?: string; skills?: string[]; discoverGroups?: boolean; reviewConversation?: string };
+  targets?: string; employeeId?: string; skills?: string[]; discoverGroups?: boolean; reviewBotId?: string; reviewUserId?: string };
 type BotDraft = Partial<BotConfiguration>;
 const credentialLabels: Record<BotCredentialKey, string> = {
   appId: 'App ID', appSecret: 'App Secret', botId: 'Bot ID', botSecret: 'Bot Secret',
@@ -125,12 +125,14 @@ const credentialLabels: Record<BotCredentialKey, string> = {
   folderToken: '云空间文件夹 Token', dwsProfile: 'DWS CLI profile',
 };
 
-function BotEditor({ row, options, close, saved }: { row: BotDraft; options: SkillOption[]; close: () => void; saved: () => Promise<unknown> }) {
+function BotEditor({ row, bots, options, close, saved }: { row: BotDraft; bots: Bot[]; options: SkillOption[]; close: () => void; saved: () => Promise<unknown> }) {
   const { message } = App.useApp();
   const [form] = Form.useForm<BotForm>();
   const [saving, setSaving] = useState(false);
   const platform = Form.useWatch('platform', form) ?? row.platform ?? 'wecom';
   const personal = (Form.useWatch('mode', form) ?? row.mode) === 'personal';
+  const reviewBotId = Form.useWatch('reviewBotId', form);
+  const reviewRobots = bots.filter((bot) => bot.platform === platform && bot.mode === 'bot' && bot.enabled && bot.id !== row.id);
   const stored = row.platform === platform ? row.secrets : undefined;
   const configFields: BotCredentialKey[] = platform === 'wecom' ?
     [...(!personal || stored?.botId || stored?.botSecret ? ['botId', 'botSecret'] as const : []),
@@ -152,7 +154,8 @@ function BotEditor({ row, options, close, saved }: { row: BotDraft; options: Ski
       await api('/bots' + (row.id ? '/' + row.id : ''), row.id ? 'PUT' : 'POST', {
         name: values.name, platform: values.platform, mode: values.mode, enabled: values.enabled, secrets,
         settings: { targets, employeeId: values.employeeId, skills: values.skills, discoverGroups: values.discoverGroups,
-          reviewConversation: values.platform === 'dingtalk' && values.mode === 'personal' ? values.reviewConversation : undefined },
+          reviewBotId: values.mode === 'personal' ? values.reviewBotId : undefined,
+          reviewUserId: values.mode === 'personal' ? values.reviewUserId?.trim() || undefined : undefined },
       });
       await saved();
       close();
@@ -165,24 +168,32 @@ function BotEditor({ row, options, close, saved }: { row: BotDraft; options: Ski
     <Form form={form} layout="vertical" onFinish={save} requiredMark={false} initialValues={{
       name: row.name, platform: row.platform ?? 'wecom', mode: row.mode ?? 'bot', enabled: !!row.enabled,
       employeeId: row.settings?.employeeId, skills: row.settings?.skills,
-      reviewConversation: row.settings?.reviewConversation,
+      reviewBotId: row.settings?.reviewBotId, reviewUserId: row.settings?.reviewUserId,
       discoverGroups: row.settings?.discoverGroups ?? true,
       targets: row.settings?.targets.map((target) => (target.group ? 'group:' : 'p2p:') + target.id).join('\n'),
       secrets: row.platform && row.secrets ? { [row.platform]: row.secrets } : undefined,
     }}>
       <div className="form-grid">
         <Form.Item name="name" label="连接名称" rules={[{ required: true, max: 100 }]}><PreviewInput /></Form.Item>
-        <Form.Item name="platform" label="平台"><Select options={platforms} /></Form.Item>
+        <Form.Item name="platform" label="平台"><Select options={platforms}
+          onChange={() => form.setFieldsValue({ reviewBotId: undefined, reviewUserId: undefined })} /></Form.Item>
       </div>
       <Form.Item name="mode" label="接入模式"><Select options={[{ value: 'bot', label: '应用机器人' }, { value: 'personal', label: '本人会话接管' }]} /></Form.Item>
-      {personal && <Form.Item name="employeeId" label="本人消息 ID" rules={[{ required: true }]}><PreviewInput /></Form.Item>}
-      {personal && platform === 'wecom' && <>
-        <Form.Item name="discoverGroups" label="自动发现活跃群聊" valuePropName="checked"><Switch /></Form.Item>
-        <p className="form-note">群聊只处理明确 @ 你的来信。在企微发给自己「接管待办」查看来信，发送「接管 编号」让 Pi 判断并处理。</p>
-      </>}
-      {personal && platform === 'feishu' && <p className="form-note">Pi 将草稿发到你的飞书本人会话。回复草稿即可用自然语言指挥 Pi。</p>}
-      {personal && platform === 'dingtalk' && <Form.Item name="reviewConversation" label="本人接管会话 ID"
-        extra="Pi 会把草稿发到这个本人会话，收到你的指令后再回复原会话。"><PreviewInput /></Form.Item>}
+      {personal && <Form.Item name="employeeId" label="本人消息 ID"
+        extra={platform === 'wecom' ? '填写企微消息 MCP 使用的本人 ID。' : undefined}
+        rules={[{ required: true }]}><PreviewInput /></Form.Item>}
+      {personal && platform === 'wecom' && <Form.Item name="discoverGroups" label="自动发现活跃群聊" valuePropName="checked"><Switch /></Form.Item>}
+      {personal && <Form.Item name="reviewBotId" label="接管机器人"
+        extra={platform === 'feishu' ? '可自动使用同一飞书应用下已启用的机器人。草稿和指令在机器人私聊中处理。' :
+          '选择同平台已启用的应用机器人，在机器人私聊中收草稿和回复指令。'}>
+        <Select allowClear options={reviewRobots.map((bot) => ({ label: bot.name, value: bot.id }))}
+          placeholder={platform === 'feishu' ? '自动匹配同应用机器人' : '请选择已启用的应用机器人'}
+          notFoundContent="请先启用同平台的应用机器人" />
+      </Form.Item>}
+      {personal && reviewBotId && <Form.Item name="reviewUserId" label="机器人侧本人 ID"
+        extra={platform === 'wecom' ? '填写机器人长连接回调中的企微通讯录 UserID。两种 ID 相同时可留空。' :
+          platform === 'dingtalk' ? '填写应用机器人收到的员工 staff ID。' : '使用其他飞书应用时，填写本人在该机器人应用下的 open_id。'}
+        rules={platform === 'dingtalk' ? [{ required: true }] : undefined}><PreviewInput /></Form.Item>}
       <Form.Item name="targets" label={personal ? '目标会话' : '目标会话白名单（可选）'}
         extra={personal && platform === 'wecom' ? '每行一个 ID，可批量粘贴。私聊填 p2p:对方userid，指定群聊填 group:群ID。' :
           '每行一个会话 ID，个人会话用 p2p:，群会话用 group:。本人接管仅响应明确 @ 本人的群消息。'}>
@@ -253,7 +264,7 @@ export function Bots({ options, openChat }: ConnectedView) {
         </Button>}
         <Button type="link" onClick={() => showActivity(row)}>消息记录</Button></Space> },
     ]}>暂无机器人连接</Records>
-    {editing && <BotEditor row={editing} options={options} close={() => setEditing(null)} saved={refresh} />}
+    {editing && <BotEditor row={editing} bots={rows} options={options} close={() => setEditing(null)} saved={refresh} />}
     <Modal title="平台本人授权" open={!!authorization} onCancel={() => setAuthorization(null)} onOk={finishAuthorization}
       okText={authorization?.state ? '完成绑定' : '返回工作台'} confirmLoading={authorizing}>
       {authorization && <p><Button href={authorization.url} target="_blank" rel="noreferrer">打开{Sources[authorization.platform]}授权页</Button></p>}

@@ -103,6 +103,8 @@ export interface BotSettings {
   targets: { id: string; group: boolean }[];
   discoverGroups?: boolean;
   reviewConversation?: string;
+  reviewBotId?: string;
+  reviewUserId?: string;
 }
 
 export interface WecomMcpUrls {

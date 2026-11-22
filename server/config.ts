@@ -35,6 +35,8 @@ export const config = {
     maxTokens: read('MODEL_MAX_TOKENS', z.coerce.number().int().positive().default(8192)),
   },
   dwsExecutable: vars.DWS_EXECUTABLE || '',
+  dwsConfigDir: vars.DWS_CONFIG_DIR ? resolve(dirname(source), vars.DWS_CONFIG_DIR) :
+    resolve(dirname(source), vars.WORKBENCH_DATA_DIR || './data', 'dws'),
   dwsDownloadProxy: vars.DWS_DOWNLOAD_PROXY ? read('DWS_DOWNLOAD_PROXY', url) : '',
   dwsProfiles: array('DWS_PROFILES', z.object({ name: z.string(), owner: z.string() })),
   mcpServers: array('MCP_SERVERS', z.object({

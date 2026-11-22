@@ -1,0 +1,657 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" type="device">
+  <diagram id="飞书" name="飞书机器人架构">
+    <mxGraphModel page="1" pageWidth="1920" pageHeight="1080" grid="0" background="#FFFFFF">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="top-rule" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=8;fillColor=#48459A;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="58" y="50" width="8" height="134" as="geometry" />
+        </mxCell>
+        <mxCell id="title" parent="1" vertex="1" value="飞书机器人如何接管办公" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=66;fontStyle=1;">
+          <mxGeometry x="83" y="47" width="1750" height="91" as="geometry" />
+        </mxCell>
+        <mxCell id="goal" parent="1" vertex="1" value="让 AI 接手飞书办公，替员工办事、回复消息、处理文档" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=31;fontStyle=0;">
+          <mxGeometry x="84" y="146" width="1739" height="41" as="geometry" />
+        </mxCell>
+        <mxCell id="scene-bg" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=34;fillColor=#F0EEFB;strokeColor=#D9D4EE;strokeWidth=2;">
+          <mxGeometry x="58" y="220" width="1804" height="77" as="geometry" />
+        </mxCell>
+        <mxCell id="scene-label" parent="1" vertex="1" value="验收场景" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#48459A;fontFamily=Hiragino Sans GB;fontSize=27;fontStyle=1;">
+          <mxGeometry x="83" y="238" width="165" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="scene-text" parent="1" vertex="1" value="同事问「这周能验收吗？」AI 查前情和资料，整理结论，再把答复发回原会话。" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=29;fontStyle=0;">
+          <mxGeometry x="248" y="238" width="1578" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=44;fillColor=#FFFFFF;strokeColor=#D6DEE7;strokeWidth=2;">
+          <mxGeometry x="58" y="335" width="426" height="391" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-header" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=28;fillColor=#F0EEFB;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="70" y="347" width="402" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-step" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=26;fillColor=#48459A;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="83" y="362" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-step-text" parent="1" vertex="1" value="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#FFFFFF;fontFamily=Hiragino Sans GB;fontSize=23;fontStyle=1;">
+          <mxGeometry x="83" y="361" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-title" parent="1" vertex="1" value="读取原会话" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=34;fontStyle=1;">
+          <mxGeometry x="141" y="362" width="310" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-main-title" parent="1" vertex="1" value="员工本人 OAuth" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#48459A;fontFamily=Hiragino Sans GB;fontSize=28;fontStyle=1;">
+          <mxGeometry x="84" y="445" width="374" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-line-0" parent="1" vertex="1" value="授权读取目标私聊或群聊" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="84" y="501" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-line-1" parent="1" vertex="1" value="按会话 ID 定时读历史" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="84" y="543" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-divider" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=0;fillColor=#D6DEE7;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="84" y="591" width="374" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-secondary-title" parent="1" vertex="1" value="机器人入口" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#48459A;fontFamily=Hiragino Sans GB;fontSize=27;fontStyle=1;">
+          <mxGeometry x="84" y="609" width="374" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-detail-0" parent="1" vertex="1" value="机器人事件接收发给机器人的消息" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=22;fontStyle=0;">
+          <mxGeometry x="84" y="661" width="374" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-arrow" parent="1" edge="1" style="endArrow=block;endSize=7;strokeWidth=4;strokeColor=#48459A;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="sourcePoint" x="487" y="532" />
+            <mxPoint as="targetPoint" x="513" y="532" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="stage-2" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=44;fillColor=#FFFFFF;strokeColor=#D6DEE7;strokeWidth=2;">
+          <mxGeometry x="517" y="335" width="426" height="391" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-header" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=28;fillColor=#F0EEFB;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="529" y="347" width="402" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-step" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=26;fillColor=#48459A;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="542" y="362" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-step-text" parent="1" vertex="1" value="2" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#FFFFFF;fontFamily=Hiragino Sans GB;fontSize=23;fontStyle=1;">
+          <mxGeometry x="542" y="361" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-title" parent="1" vertex="1" value="理解并安排任务" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=34;fontStyle=1;">
+          <mxGeometry x="600" y="362" width="310" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-main-title" parent="1" vertex="1" value="AI 工作台" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#48459A;fontFamily=Hiragino Sans GB;fontSize=28;fontStyle=1;">
+          <mxGeometry x="543" y="445" width="374" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-line-0" parent="1" vertex="1" value="结合历史和附件核对验收条件" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="543" y="501" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-line-1" parent="1" vertex="1" value="整理已办事项、待办和回复草稿" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="543" y="543" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-divider" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=0;fillColor=#D6DEE7;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="543" y="591" width="374" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-secondary-title" parent="1" vertex="1" value="先检查人工回复" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#48459A;fontFamily=Hiragino Sans GB;fontSize=27;fontStyle=1;">
+          <mxGeometry x="543" y="609" width="374" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-detail-0" parent="1" vertex="1" value="生成前、发送前都检查" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=22;fontStyle=0;">
+          <mxGeometry x="543" y="661" width="374" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-arrow" parent="1" edge="1" style="endArrow=block;endSize=7;strokeWidth=4;strokeColor=#48459A;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="sourcePoint" x="946" y="532" />
+            <mxPoint as="targetPoint" x="972" y="532" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="stage-3" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=44;fillColor=#FFFFFF;strokeColor=#D6DEE7;strokeWidth=2;">
+          <mxGeometry x="976" y="335" width="426" height="391" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-header" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=28;fillColor=#F0EEFB;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="988" y="347" width="402" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-step" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=26;fillColor=#48459A;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1001" y="362" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-step-text" parent="1" vertex="1" value="3" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#FFFFFF;fontFamily=Hiragino Sans GB;fontSize=23;fontStyle=1;">
+          <mxGeometry x="1001" y="361" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-title" parent="1" vertex="1" value="处理在线文档" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=34;fontStyle=1;">
+          <mxGeometry x="1059" y="362" width="310" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-main-title" parent="1" vertex="1" value="文档使用应用身份" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#48459A;fontFamily=Hiragino Sans GB;fontSize=28;fontStyle=1;">
+          <mxGeometry x="1002" y="445" width="374" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-line-0" parent="1" vertex="1" value="应用需有文档和资源访问权限" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="1002" y="501" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-line-1" parent="1" vertex="1" value="Markdown 转为文档块后写入" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="1002" y="543" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-divider" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=0;fillColor=#D6DEE7;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1002" y="591" width="374" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-secondary-title" parent="1" vertex="1" value="生成可交付成果" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#48459A;fontFamily=Hiragino Sans GB;fontSize=27;fontStyle=1;">
+          <mxGeometry x="1002" y="609" width="374" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-detail-0" parent="1" vertex="1" value="读回正文并取得真实链接" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=22;fontStyle=0;">
+          <mxGeometry x="1002" y="661" width="374" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-arrow" parent="1" edge="1" style="endArrow=block;endSize=7;strokeWidth=4;strokeColor=#48459A;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="sourcePoint" x="1405" y="532" />
+            <mxPoint as="targetPoint" x="1431" y="532" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="stage-4" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=44;fillColor=#FFFFFF;strokeColor=#D6DEE7;strokeWidth=2;">
+          <mxGeometry x="1435" y="335" width="426" height="391" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-header" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=28;fillColor=#F0EEFB;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1447" y="347" width="402" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-step" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=26;fillColor=#48459A;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1460" y="362" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-step-text" parent="1" vertex="1" value="4" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#FFFFFF;fontFamily=Hiragino Sans GB;fontSize=23;fontStyle=1;">
+          <mxGeometry x="1460" y="361" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-title" parent="1" vertex="1" value="回到原来的聊天" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=34;fontStyle=1;">
+          <mxGeometry x="1518" y="362" width="310" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-main-title" parent="1" vertex="1" value="员工用户令牌发送" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#48459A;fontFamily=Hiragino Sans GB;fontSize=28;fontStyle=1;">
+          <mxGeometry x="1461" y="445" width="374" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-line-0" parent="1" vertex="1" value="向获准的私聊或群聊发送" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="1461" y="501" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-line-1" parent="1" vertex="1" value="回复文字可附飞书文档链接" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="1461" y="543" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-divider" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=0;fillColor=#D6DEE7;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1461" y="591" width="374" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-secondary-title" parent="1" vertex="1" value="确认送达" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#48459A;fontFamily=Hiragino Sans GB;fontSize=27;fontStyle=1;">
+          <mxGeometry x="1461" y="609" width="374" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-detail-0" parent="1" vertex="1" value="读回正文、会话与员工署名" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=22;fontStyle=0;">
+          <mxGeometry x="1461" y="661" width="374" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=44;fillColor=#F3F6FA;strokeColor=#D6DEE7;strokeWidth=2;">
+          <mxGeometry x="58" y="773" width="888" height="232" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0-title" parent="1" vertex="1" value="身份与权限" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#48459A;fontFamily=Hiragino Sans GB;fontSize=36;fontStyle=1;">
+          <mxGeometry x="85" y="796" width="830" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0-divider" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=0;fillColor=#D6DEE7;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="86" y="861" width="830" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0-dot-0" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=8;fillColor=#48459A;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="86" y="895" width="7" height="7" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0-detail-0" parent="1" vertex="1" value="聊天用员工 OAuth，文档用应用令牌。" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=26;fontStyle=0;">
+          <mxGeometry x="108" y="881" width="802" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0-dot-1" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=8;fillColor=#48459A;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="86" y="942" width="7" height="7" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0-detail-1" parent="1" vertex="1" value="收到链接的人仍需拥有文档访问权限。" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=26;fontStyle=0;">
+          <mxGeometry x="108" y="928" width="802" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=44;fillColor=#F0EEFB;strokeColor=#D9D4EE;strokeWidth=2;">
+          <mxGeometry x="974" y="773" width="888" height="232" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1-title" parent="1" vertex="1" value="已验证" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#48459A;fontFamily=Hiragino Sans GB;fontSize=36;fontStyle=1;">
+          <mxGeometry x="1001" y="796" width="830" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1-divider" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=0;fillColor=#D9D4EE;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1002" y="861" width="830" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1-dot-0" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=8;fillColor=#48459A;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1002" y="895" width="7" height="7" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1-detail-0" parent="1" vertex="1" value="原私聊、原群聊均完成员工身份收发。" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=26;fontStyle=0;">
+          <mxGeometry x="1024" y="881" width="802" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1-dot-1" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=8;fillColor=#48459A;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1002" y="942" width="7" height="7" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1-detail-1" parent="1" vertex="1" value="云文档已读写，本人私聊链接可打开正文。" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=26;fontStyle=0;">
+          <mxGeometry x="1024" y="928" width="802" height="39" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="钉钉" name="钉钉机器人架构">
+    <mxGraphModel page="1" pageWidth="1920" pageHeight="1080" grid="0" background="#FFFFFF">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="top-rule" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=8;fillColor=#155688;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="58" y="50" width="8" height="134" as="geometry" />
+        </mxCell>
+        <mxCell id="title" parent="1" vertex="1" value="钉钉机器人如何接管办公" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=66;fontStyle=1;">
+          <mxGeometry x="83" y="47" width="1750" height="91" as="geometry" />
+        </mxCell>
+        <mxCell id="goal" parent="1" vertex="1" value="让 AI 接手钉钉办公，替员工办事、回复消息、处理文档" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=31;fontStyle=0;">
+          <mxGeometry x="84" y="146" width="1739" height="41" as="geometry" />
+        </mxCell>
+        <mxCell id="scene-bg" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=34;fillColor=#EAF3FB;strokeColor=#D1E1F1;strokeWidth=2;">
+          <mxGeometry x="58" y="220" width="1804" height="77" as="geometry" />
+        </mxCell>
+        <mxCell id="scene-label" parent="1" vertex="1" value="验收场景" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#155688;fontFamily=Hiragino Sans GB;fontSize=27;fontStyle=1;">
+          <mxGeometry x="83" y="238" width="165" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="scene-text" parent="1" vertex="1" value="同事问「这周能验收吗？」AI 查前情和资料，整理结论，再把答复发回原会话。" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=29;fontStyle=0;">
+          <mxGeometry x="248" y="238" width="1578" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=44;fillColor=#FFFFFF;strokeColor=#D6DEE7;strokeWidth=2;">
+          <mxGeometry x="58" y="335" width="426" height="391" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-header" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=28;fillColor=#EAF3FB;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="70" y="347" width="402" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-step" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=26;fillColor=#155688;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="83" y="362" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-step-text" parent="1" vertex="1" value="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#FFFFFF;fontFamily=Hiragino Sans GB;fontSize=23;fontStyle=1;">
+          <mxGeometry x="83" y="361" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-title" parent="1" vertex="1" value="读取原会话" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=34;fontStyle=1;">
+          <mxGeometry x="141" y="362" width="310" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-main-title" parent="1" vertex="1" value="企业放行＋本人授权" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#155688;fontFamily=Hiragino Sans GB;fontSize=28;fontStyle=1;">
+          <mxGeometry x="84" y="445" width="374" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-line-0" parent="1" vertex="1" value="企业开放 CLI Agent 个人渠道" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="84" y="501" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-line-1" parent="1" vertex="1" value="员工确认组织，按会话 ID 读历史" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="84" y="543" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-divider" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=0;fillColor=#D6DEE7;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="84" y="591" width="374" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-secondary-title" parent="1" vertex="1" value="机器人入口" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#155688;fontFamily=Hiragino Sans GB;fontSize=27;fontStyle=1;">
+          <mxGeometry x="84" y="609" width="374" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-detail-0" parent="1" vertex="1" value="普通机器人通过 Stream 收发" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=22;fontStyle=0;">
+          <mxGeometry x="84" y="661" width="374" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-arrow" parent="1" edge="1" style="endArrow=block;endSize=7;strokeWidth=4;strokeColor=#155688;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="sourcePoint" x="487" y="532" />
+            <mxPoint as="targetPoint" x="513" y="532" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="stage-2" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=44;fillColor=#FFFFFF;strokeColor=#D6DEE7;strokeWidth=2;">
+          <mxGeometry x="517" y="335" width="426" height="391" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-header" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=28;fillColor=#EAF3FB;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="529" y="347" width="402" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-step" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=26;fillColor=#155688;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="542" y="362" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-step-text" parent="1" vertex="1" value="2" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#FFFFFF;fontFamily=Hiragino Sans GB;fontSize=23;fontStyle=1;">
+          <mxGeometry x="542" y="361" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-title" parent="1" vertex="1" value="理解并安排任务" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=34;fontStyle=1;">
+          <mxGeometry x="600" y="362" width="310" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-main-title" parent="1" vertex="1" value="AI 工作台" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#155688;fontFamily=Hiragino Sans GB;fontSize=28;fontStyle=1;">
+          <mxGeometry x="543" y="445" width="374" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-line-0" parent="1" vertex="1" value="结合会话记录核对进度" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="543" y="501" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-line-1" parent="1" vertex="1" value="列出待办，拟好一条答复" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="543" y="543" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-divider" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=0;fillColor=#D6DEE7;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="543" y="591" width="374" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-secondary-title" parent="1" vertex="1" value="按个人身份判断" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#155688;fontFamily=Hiragino Sans GB;fontSize=27;fontStyle=1;">
+          <mxGeometry x="543" y="609" width="374" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-detail-0" parent="1" vertex="1" value="用开放钉钉号识别员工已发消息" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=22;fontStyle=0;">
+          <mxGeometry x="543" y="661" width="374" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-arrow" parent="1" edge="1" style="endArrow=block;endSize=7;strokeWidth=4;strokeColor=#155688;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="sourcePoint" x="946" y="532" />
+            <mxPoint as="targetPoint" x="972" y="532" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="stage-3" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=44;fillColor=#FFFFFF;strokeColor=#D6DEE7;strokeWidth=2;">
+          <mxGeometry x="976" y="335" width="426" height="391" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-header" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=28;fillColor=#EAF3FB;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="988" y="347" width="402" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-step" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=26;fillColor=#155688;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1001" y="362" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-step-text" parent="1" vertex="1" value="3" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#FFFFFF;fontFamily=Hiragino Sans GB;fontSize=23;fontStyle=1;">
+          <mxGeometry x="1001" y="361" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-title" parent="1" vertex="1" value="处理在线文档" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=34;fontStyle=1;">
+          <mxGeometry x="1059" y="362" width="310" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-main-title" parent="1" vertex="1" value="官方 DWS CLI" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#155688;fontFamily=Hiragino Sans GB;fontSize=28;fontStyle=1;">
+          <mxGeometry x="1002" y="445" width="374" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-line-0" parent="1" vertex="1" value="以员工授权创建钉钉文档" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="1002" y="501" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-line-1" parent="1" vertex="1" value="写入 Markdown，按需要追加内容" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="1002" y="543" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-divider" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=0;fillColor=#D6DEE7;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1002" y="591" width="374" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-secondary-title" parent="1" vertex="1" value="按原文档 ID 读回" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#155688;fontFamily=Hiragino Sans GB;fontSize=27;fontStyle=1;">
+          <mxGeometry x="1002" y="609" width="374" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-detail-0" parent="1" vertex="1" value="确认初始正文和新增段落" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=22;fontStyle=0;">
+          <mxGeometry x="1002" y="661" width="374" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-arrow" parent="1" edge="1" style="endArrow=block;endSize=7;strokeWidth=4;strokeColor=#155688;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="sourcePoint" x="1405" y="532" />
+            <mxPoint as="targetPoint" x="1431" y="532" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="stage-4" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=44;fillColor=#FFFFFF;strokeColor=#D6DEE7;strokeWidth=2;">
+          <mxGeometry x="1435" y="335" width="426" height="391" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-header" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=28;fillColor=#EAF3FB;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1447" y="347" width="402" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-step" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=26;fillColor=#155688;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1460" y="362" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-step-text" parent="1" vertex="1" value="4" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#FFFFFF;fontFamily=Hiragino Sans GB;fontSize=23;fontStyle=1;">
+          <mxGeometry x="1460" y="361" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-title" parent="1" vertex="1" value="回到原来的聊天" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=34;fontStyle=1;">
+          <mxGeometry x="1518" y="362" width="310" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-main-title" parent="1" vertex="1" value="个人消息通道" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#155688;fontFamily=Hiragino Sans GB;fontSize=28;fontStyle=1;">
+          <mxGeometry x="1461" y="445" width="374" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-line-0" parent="1" vertex="1" value="按会话 ID 发送文字答复" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="1461" y="501" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-line-1" parent="1" vertex="1" value="有文档链接时随文本交付" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="1461" y="543" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-divider" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=0;fillColor=#D6DEE7;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1461" y="591" width="374" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-secondary-title" parent="1" vertex="1" value="确认送达" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#155688;fontFamily=Hiragino Sans GB;fontSize=27;fontStyle=1;">
+          <mxGeometry x="1461" y="609" width="374" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-detail-0" parent="1" vertex="1" value="核对发送回执、正文和署名" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=22;fontStyle=0;">
+          <mxGeometry x="1461" y="661" width="374" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=44;fillColor=#F3F6FA;strokeColor=#D6DEE7;strokeWidth=2;">
+          <mxGeometry x="58" y="773" width="888" height="232" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0-title" parent="1" vertex="1" value="当前接入" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#155688;fontFamily=Hiragino Sans GB;fontSize=36;fontStyle=1;">
+          <mxGeometry x="85" y="796" width="830" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0-divider" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=0;fillColor=#D6DEE7;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="86" y="861" width="830" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0-dot-0" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=8;fillColor=#155688;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="86" y="895" width="7" height="7" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0-detail-0" parent="1" vertex="1" value="工作台负责会话收发，DWS CLI 单独操作文档。" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=26;fontStyle=0;">
+          <mxGeometry x="108" y="881" width="802" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0-dot-1" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=8;fillColor=#155688;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="86" y="942" width="7" height="7" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0-detail-1" parent="1" vertex="1" value="若合在一次任务中，可由工作台调度两路工具。" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=26;fontStyle=0;">
+          <mxGeometry x="108" y="928" width="802" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=44;fillColor=#EAF3FB;strokeColor=#D1E1F1;strokeWidth=2;">
+          <mxGeometry x="974" y="773" width="888" height="232" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1-title" parent="1" vertex="1" value="已验证" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#155688;fontFamily=Hiragino Sans GB;fontSize=36;fontStyle=1;">
+          <mxGeometry x="1001" y="796" width="830" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1-divider" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=0;fillColor=#D1E1F1;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1002" y="861" width="830" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1-dot-0" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=8;fillColor=#155688;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1002" y="895" width="7" height="7" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1-detail-0" parent="1" vertex="1" value="已读原私聊和群聊历史。本人私聊发送并读回。" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=26;fontStyle=0;">
+          <mxGeometry x="1024" y="881" width="802" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1-dot-1" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=8;fillColor=#155688;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1002" y="942" width="7" height="7" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1-detail-1" parent="1" vertex="1" value="DWS CLI 已创建文档、追加段落并从原文档读回。" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=26;fontStyle=0;">
+          <mxGeometry x="1024" y="928" width="802" height="39" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="企业微信" name="企业微信机器人架构">
+    <mxGraphModel page="1" pageWidth="1920" pageHeight="1080" grid="0" background="#FFFFFF">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="top-rule" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=8;fillColor=#226951;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="58" y="50" width="8" height="134" as="geometry" />
+        </mxCell>
+        <mxCell id="title" parent="1" vertex="1" value="企业微信机器人如何接管办公" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=66;fontStyle=1;">
+          <mxGeometry x="83" y="47" width="1750" height="91" as="geometry" />
+        </mxCell>
+        <mxCell id="goal" parent="1" vertex="1" value="让 AI 接管真人的企业微信办公，替员工干活，也替员工回复消息，处理文档" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=31;fontStyle=0;">
+          <mxGeometry x="84" y="146" width="1739" height="41" as="geometry" />
+        </mxCell>
+        <mxCell id="scene-bg" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=34;fillColor=#EAF5EE;strokeColor=#CDE3D8;strokeWidth=2;">
+          <mxGeometry x="58" y="220" width="1804" height="77" as="geometry" />
+        </mxCell>
+        <mxCell id="scene-label" parent="1" vertex="1" value="验收场景" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#226951;fontFamily=Hiragino Sans GB;fontSize=27;fontStyle=1;">
+          <mxGeometry x="83" y="238" width="165" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="scene-text" parent="1" vertex="1" value="同事问「这周能验收吗？」AI 查前情和资料，整理结论，再把答复发回原会话。" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=29;fontStyle=0;">
+          <mxGeometry x="248" y="238" width="1578" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=44;fillColor=#FFFFFF;strokeColor=#D6DEE7;strokeWidth=2;">
+          <mxGeometry x="58" y="335" width="426" height="391" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-header" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=28;fillColor=#EAF5EE;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="70" y="347" width="402" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-step" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=26;fillColor=#226951;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="83" y="362" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-step-text" parent="1" vertex="1" value="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#FFFFFF;fontFamily=Hiragino Sans GB;fontSize=23;fontStyle=1;">
+          <mxGeometry x="83" y="361" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-title" parent="1" vertex="1" value="读取原会话" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=34;fontStyle=1;">
+          <mxGeometry x="141" y="362" width="310" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-main-title" parent="1" vertex="1" value="企业微信消息 MCP" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#226951;fontFamily=Hiragino Sans GB;fontSize=28;fontStyle=1;">
+          <mxGeometry x="84" y="445" width="374" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-line-0" parent="1" vertex="1" value="单聊定位对方，群聊定位会话" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="84" y="501" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-line-1" parent="1" vertex="1" value="按会话与时间窗读取消息" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="84" y="543" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-divider" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=0;fillColor=#D6DEE7;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="84" y="591" width="374" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-secondary-title" parent="1" vertex="1" value="机器人入口" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#226951;fontFamily=Hiragino Sans GB;fontSize=27;fontStyle=1;">
+          <mxGeometry x="84" y="609" width="374" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-detail-0" parent="1" vertex="1" value="机器人长连接接收发给它的消息" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=22;fontStyle=0;">
+          <mxGeometry x="84" y="661" width="374" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1-arrow" parent="1" edge="1" style="endArrow=block;endSize=7;strokeWidth=4;strokeColor=#226951;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="sourcePoint" x="487" y="532" />
+            <mxPoint as="targetPoint" x="513" y="532" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="stage-2" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=44;fillColor=#FFFFFF;strokeColor=#D6DEE7;strokeWidth=2;">
+          <mxGeometry x="517" y="335" width="426" height="391" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-header" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=28;fillColor=#EAF5EE;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="529" y="347" width="402" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-step" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=26;fillColor=#226951;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="542" y="362" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-step-text" parent="1" vertex="1" value="2" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#FFFFFF;fontFamily=Hiragino Sans GB;fontSize=23;fontStyle=1;">
+          <mxGeometry x="542" y="361" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-title" parent="1" vertex="1" value="理解并安排任务" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=34;fontStyle=1;">
+          <mxGeometry x="600" y="362" width="310" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-main-title" parent="1" vertex="1" value="AI 工作台" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#226951;fontFamily=Hiragino Sans GB;fontSize=28;fontStyle=1;">
+          <mxGeometry x="543" y="445" width="374" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-line-0" parent="1" vertex="1" value="结合聊天和 Excel 核对验收条件" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="543" y="501" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-line-1" parent="1" vertex="1" value="整理已办事项、待办和回复草稿" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="543" y="543" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-divider" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=0;fillColor=#D6DEE7;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="543" y="591" width="374" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-secondary-title" parent="1" vertex="1" value="先检查人工回复" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#226951;fontFamily=Hiragino Sans GB;fontSize=27;fontStyle=1;">
+          <mxGeometry x="543" y="609" width="374" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-detail-0" parent="1" vertex="1" value="员工已回复的消息直接跳过" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=22;fontStyle=0;">
+          <mxGeometry x="543" y="661" width="374" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2-arrow" parent="1" edge="1" style="endArrow=block;endSize=7;strokeWidth=4;strokeColor=#226951;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="sourcePoint" x="946" y="532" />
+            <mxPoint as="targetPoint" x="972" y="532" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="stage-3" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=44;fillColor=#FFFFFF;strokeColor=#D6DEE7;strokeWidth=2;">
+          <mxGeometry x="976" y="335" width="426" height="391" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-header" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=28;fillColor=#EAF5EE;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="988" y="347" width="402" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-step" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=26;fillColor=#226951;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1001" y="362" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-step-text" parent="1" vertex="1" value="3" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#FFFFFF;fontFamily=Hiragino Sans GB;fontSize=23;fontStyle=1;">
+          <mxGeometry x="1001" y="361" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-title" parent="1" vertex="1" value="处理在线文档" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=34;fontStyle=1;">
+          <mxGeometry x="1059" y="362" width="310" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-main-title" parent="1" vertex="1" value="单独授权文档 MCP" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#226951;fontFamily=Hiragino Sans GB;fontSize=28;fontStyle=1;">
+          <mxGeometry x="1002" y="445" width="374" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-line-0" parent="1" vertex="1" value="按文档权限查验收资料" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="1002" y="501" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-line-1" parent="1" vertex="1" value="新建报告、写入并读回正文" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="1002" y="543" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-divider" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=0;fillColor=#D6DEE7;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1002" y="591" width="374" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-secondary-title" parent="1" vertex="1" value="生成可交付成果" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#226951;fontFamily=Hiragino Sans GB;fontSize=27;fontStyle=1;">
+          <mxGeometry x="1002" y="609" width="374" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-detail-0" parent="1" vertex="1" value="取得平台返回的文档链接" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=22;fontStyle=0;">
+          <mxGeometry x="1002" y="661" width="374" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3-arrow" parent="1" edge="1" style="endArrow=block;endSize=7;strokeWidth=4;strokeColor=#226951;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="sourcePoint" x="1405" y="532" />
+            <mxPoint as="targetPoint" x="1431" y="532" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="stage-4" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=44;fillColor=#FFFFFF;strokeColor=#D6DEE7;strokeWidth=2;">
+          <mxGeometry x="1435" y="335" width="426" height="391" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-header" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=28;fillColor=#EAF5EE;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1447" y="347" width="402" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-step" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=26;fillColor=#226951;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1460" y="362" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-step-text" parent="1" vertex="1" value="4" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#FFFFFF;fontFamily=Hiragino Sans GB;fontSize=23;fontStyle=1;">
+          <mxGeometry x="1460" y="361" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-title" parent="1" vertex="1" value="回到原来的聊天" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=34;fontStyle=1;">
+          <mxGeometry x="1518" y="362" width="310" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-main-title" parent="1" vertex="1" value="消息 MCP 员工代发" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#226951;fontFamily=Hiragino Sans GB;fontSize=28;fontStyle=1;">
+          <mxGeometry x="1461" y="445" width="374" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-line-0" parent="1" vertex="1" value="按授权发回原私聊或原群聊" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="1461" y="501" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-line-1" parent="1" vertex="1" value="回复文字可附企业微信文档链接" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=24;fontStyle=0;">
+          <mxGeometry x="1461" y="543" width="374" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-divider" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=0;fillColor=#D6DEE7;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1461" y="591" width="374" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-secondary-title" parent="1" vertex="1" value="确认送达" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#226951;fontFamily=Hiragino Sans GB;fontSize=27;fontStyle=1;">
+          <mxGeometry x="1461" y="609" width="374" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4-detail-0" parent="1" vertex="1" value="读回正文、会话与员工署名" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#44586C;fontFamily=Hiragino Sans GB;fontSize=22;fontStyle=0;">
+          <mxGeometry x="1461" y="661" width="374" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=44;fillColor=#F3F6FA;strokeColor=#D6DEE7;strokeWidth=2;">
+          <mxGeometry x="58" y="773" width="888" height="232" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0-title" parent="1" vertex="1" value="身份与权限" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#226951;fontFamily=Hiragino Sans GB;fontSize=36;fontStyle=1;">
+          <mxGeometry x="85" y="796" width="830" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0-divider" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=0;fillColor=#D6DEE7;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="86" y="861" width="830" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0-dot-0" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=8;fillColor=#226951;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="86" y="895" width="7" height="7" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0-detail-0" parent="1" vertex="1" value="消息与文档分别授权，按指定会话处理。" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=26;fontStyle=0;">
+          <mxGeometry x="108" y="881" width="802" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0-dot-1" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=8;fillColor=#226951;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="86" y="942" width="7" height="7" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-0-detail-1" parent="1" vertex="1" value="共享创建者权限时，代发署应用创建者的名。" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=26;fontStyle=0;">
+          <mxGeometry x="108" y="928" width="802" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=44;fillColor=#EAF5EE;strokeColor=#CDE3D8;strokeWidth=2;">
+          <mxGeometry x="974" y="773" width="888" height="232" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1-title" parent="1" vertex="1" value="已验证" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#226951;fontFamily=Hiragino Sans GB;fontSize=36;fontStyle=1;">
+          <mxGeometry x="1001" y="796" width="830" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1-divider" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=0;fillColor=#CDE3D8;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1002" y="861" width="830" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1-dot-0" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=8;fillColor=#226951;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1002" y="895" width="7" height="7" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1-detail-0" parent="1" vertex="1" value="原私聊、原群聊均完成员工身份收发。" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=26;fontStyle=0;">
+          <mxGeometry x="1024" y="881" width="802" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1-dot-1" parent="1" vertex="1" style="rounded=1;absoluteArcSize=1;arcSize=8;fillColor=#226951;strokeColor=none;strokeWidth=2;">
+          <mxGeometry x="1002" y="942" width="7" height="7" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-1-detail-1" parent="1" vertex="1" value="企业微信云文档已创建、覆写并读回正文。" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=nowrap;spacing=0;fontColor=#172537;fontFamily=Hiragino Sans GB;fontSize=26;fontStyle=0;">
+          <mxGeometry x="1024" y="928" width="802" height="39" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

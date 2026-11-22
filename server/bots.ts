@@ -3,16 +3,16 @@ import { isDeepStrictEqual } from 'node:util';
 import type { Express } from 'express';
 import { botCredentialKeys } from '../shared/types.ts';
 import type { Bot, BotConfiguration, BotSettings, ReplyState, WecomMcpUrls } from '../shared/types.ts';
-import type { AgentRun, BotRun, InboundMessage, LiveBot, ReplyReview, SaveRequest, Response, Secrets, StoredTables, Transport } from './types.ts';
+import type { AgentRun, BotRun, InboundMessage, LiveBot, ReplyReview, ReviewSender, SaveRequest, Response, Secrets, StoredTables, Transport } from './types.ts';
 import { requireUser } from './auth.ts';
 import { z } from 'zod';
 import { all, createChat, enqueue, get, owned, run, seal, transaction, unseal } from './store.ts';
 import { httpError, now, parse } from './config.ts';
-import { feishuApp, history, jsonRequest, sendFeishu, sendPersonal, textValue, wecomEndpoint, wecomGroups } from './platform.ts';
+import { createFeishuMessage, feishuApp, history, jsonRequest, limitWecomText, sendFeishu, sendPersonal, textValue, wecomEndpoint, wecomGroups } from './platform.ts';
 import { freshToken, verifyEmployee } from './authorization.ts';
 import { skillRows } from './files.ts';
 import { skillsField } from './schedules.ts';
-import { expireReviews, isReviewBot, notifyReviewer, prepareReply, recordDraft, recoverReviews, reviewerTarget, reviewWindow } from './replies.ts';
+import { expireReviews, isReviewBot, notifyReviewer, prepareReply, recordDraft, recoverReviews, reviewWindow } from './replies.ts';
 import { publishReplyDocument } from './documents.ts';
 import { commandForRun, handleOwnerCommand, notifyCommandResults } from './wecom-commands.ts';
 import { beginWecomDelivery, recoverWecomDeliveries, sendWecomParts, wecomReplyParts } from './wecom-delivery.ts';
@@ -28,6 +28,8 @@ const fields = z.object({
     targets: z.array(z.object({ id: z.string().trim().min(1).max(250), group: z.boolean().default(false) })).max(500).default([]),
     discoverGroups: z.boolean().default(true),
     reviewConversation: z.string().trim().max(250).optional(),
+    reviewBotId: z.string().uuid().optional(),
+    reviewUserId: z.string().trim().min(1).max(200).optional(),
   }).default({ skills: [], employeeId: '', targets: [], discoverGroups: true }),
   secrets: z.partialRecord(z.enum(botCredentialKeys), z.string().trim().max(4000)).default({}),
 });
@@ -37,6 +39,17 @@ function show(bot: StoredTables['bots']): Bot {
   return { ...visible, configured: botCredentialKeys.filter((key) => secrets[key]) };
 }
 const current = (bot: LiveBot) => get('SELECT 1 FROM bots WHERE id=? AND version=? AND enabled=1', bot.id, bot.version);
+const enabledBots = () => all<StoredTables['bots']>('SELECT * FROM bots WHERE enabled=1').map(hydrate);
+function reviewRoute(personal: LiveBot, bots: LiveBot[]) {
+  const { reviewBotId, reviewUserId, employeeId } = personal.settings;
+  const bot = bots.find((item) => item.mode === 'bot' && item.platform === personal.platform && item.owner === personal.owner &&
+    (reviewBotId ? item.id === reviewBotId : personal.platform === 'feishu' && personal.secrets.appId && item.secrets.appId === personal.secrets.appId));
+  if (!bot) return;
+  const sameFeishuApp = personal.platform === 'feishu' && Boolean(personal.secrets.appId) && personal.secrets.appId === bot.secrets.appId;
+  const recipient = sameFeishuApp ? employeeId : reviewUserId ?? (personal.platform === 'wecom' ? employeeId : undefined);
+  if (!recipient) return;
+  return { bot, recipient, key: JSON.stringify([bot.id, bot.version, recipient]) };
+}
 const logger = { trace() {}, debug() {}, info() {}, warn() {}, error() {} };
 function setStatus(bot: LiveBot, status: Bot['status'], detail: string | null = null) {
   run('UPDATE bots SET status=?,detail=? WHERE id=? AND version=?', status, detail, bot.id, bot.version);
@@ -56,10 +69,6 @@ function verifyConfigured(bot: z.infer<typeof fields> & { secrets: Secrets }) {
   if (required.some((key) => !secrets[key])) throw httpError(400, '启用连接前请填写所需凭据');
   if (mode === 'personal' && (!settings.employeeId || (!settings.targets.length && !(platform === 'wecom' && settings.discoverGroups)))) {
     throw httpError(400, '本人接管需要本人消息 ID 和接管范围');
-  }
-  if (platform === 'dingtalk' && mode === 'personal' &&
-    (!settings.reviewConversation || settings.targets.some((target) => target.id === settings.reviewConversation))) {
-    throw httpError(400, '请单独填写钉钉本人会话 ID，目标会话中不要重复填写');
   }
 }
 export function installBots(app: Express) {
@@ -81,6 +90,9 @@ export function installBots(app: Express) {
     const old = req.params.id ? hydrate(owned('bots', owner, req.params.id)) : null;
     const input = fields.parse(req.body);
     const id = old?.id ?? randomUUID();
+    if (input.mode === 'personal' && old?.platform === input.platform && old.settings.reviewConversation) {
+      input.settings.reviewConversation = old.settings.reviewConversation;
+    }
     const secrets: Secrets = { ...(old?.platform === input.platform ? old.secrets : {}), ...input.secrets };
     const tokenChanged = Object.hasOwn(input.secrets, 'userToken') && old?.secrets.userToken !== secrets.userToken;
     if (old && (old.settings.employeeId !== input.settings.employeeId || old.secrets.appId !== secrets.appId ||
@@ -103,12 +115,33 @@ export function installBots(app: Express) {
           .some((item) => { const keys = unseal<Secrets>(item.secrets); return identity === (keys.botId ?? keys.appId); })) {
         throw httpError(409, '此平台应用已存在启用的连接');
       }
+      if (input.mode === 'personal' && input.settings.reviewBotId &&
+        (input.enabled || old?.settings.reviewBotId !== input.settings.reviewBotId)) {
+        const robot = get<StoredTables['bots']>('SELECT * FROM bots WHERE id=? AND owner=? AND platform=? AND mode=? AND enabled=1',
+          input.settings.reviewBotId, owner, input.platform, 'bot');
+        if (!robot || robot.id === id) throw httpError(400, '请选择同平台已启用的应用机器人');
+        const app = hydrate(robot);
+        const sameFeishuApp = input.platform === 'feishu' && Boolean(secrets.appId) && app.secrets.appId === secrets.appId;
+        const recipient = sameFeishuApp ? input.settings.employeeId : input.settings.reviewUserId ??
+          (input.platform === 'wecom' ? input.settings.employeeId : undefined);
+        if (!recipient) throw httpError(400, '请填写机器人侧的本人 ID');
+        if (input.enabled && enabledBots().some((item) => item.id !== id && item.mode === 'personal' &&
+          reviewRoute(item, [app])?.recipient === recipient)) throw httpError(409, '该机器人私聊已绑定另一条本人接管连接');
+      }
+      const personalSettings = (settings: BotSettings) => {
+        const { reviewBotId: _bot, reviewUserId: _user, ...rest } = settings;
+        return { discoverGroups: true, ...rest };
+      };
+      const sameTakeover = old?.platform === input.platform && old.mode === 'personal' && input.mode === 'personal' &&
+        old.name === input.name && Boolean(old.enabled) === input.enabled && isDeepStrictEqual(old.secrets, secrets) &&
+        isDeepStrictEqual(personalSettings(old.settings), personalSettings(input.settings));
       run(`INSERT INTO bots VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
         ON CONFLICT(id) DO UPDATE SET name=excluded.name,platform=excluded.platform,mode=excluded.mode,
         settings=excluded.settings,secrets=excluded.secrets,enabled=excluded.enabled,version=excluded.version,
         since=excluded.since,status=excluded.status,detail=NULL,updated=excluded.updated`,
       id, owner, input.name, input.platform, input.mode, JSON.stringify(input.settings), seal(secrets),
-      Number(input.enabled), (old?.version ?? 0) + 1, now(), input.enabled ? 'connecting' : 'offline', null, now());
+      Number(input.enabled), sameTakeover ? old.version : (old?.version ?? 0) + 1, sameTakeover ? old.since : now(),
+      sameTakeover ? old.status : input.enabled ? 'connecting' : 'offline', null, now());
     });
     res.json(show(owned('bots', owner, id)));
   }
@@ -167,9 +200,11 @@ export async function mayHandleInbound(row: AgentRun | BotRun) {
     return false;
   }
 }
-type ConnectionClient = { close: () => void; send: (target: string, text: string, id: string, transport: Transport) => Promise<string | null> };
+type ConnectionClient = { close: () => void; send: (target: string, text: string, id: string, transport: Transport) => Promise<string | null>;
+  sendReview: (recipient: string, text: string, id: string) => Promise<string | null> };
 type Connection = { bot: LiveBot; client?: ConnectionClient; timer?: ReturnType<typeof setTimeout> };
-async function connectBot(bot: LiveBot): Promise<ConnectionClient> {
+type BotMessage = InboundMessage & { privateChat: boolean; time?: number; replyTo?: string; quotedReview?: string; reply?: ReviewSender };
+async function connectBot(bot: LiveBot, receive: (message: BotMessage, target: string | undefined, transport: Transport) => void): Promise<ConnectionClient> {
   const { platform, secrets } = bot;
   if (platform === 'wecom') {
     const { default: WeCom } = await import('@wecom/aibot-node-sdk');
@@ -181,7 +216,15 @@ async function connectBot(bot: LiveBot): Promise<ConnectionClient> {
     client.on('message.text', (frame) => {
       const row = frame.body;
       if (!row) return;
-      accept(bot, row.chatid ?? row.from?.userid, { id: row.msgid, text: row.text?.content }, { channel: 'wecom' });
+      if (row.aibotid && row.aibotid !== secrets.botId) return;
+      const quotedReview = /^【企微接管待办 ([a-f0-9]{8})】/i.exec(row.quote?.text?.content ?? '')?.[1];
+      const reply: ReviewSender = async (text) => {
+        const result = await client.replyStream(frame, randomUUID(), limitWecomText(text), true);
+        return result.headers?.req_id ?? null;
+      };
+      receive({ id: row.msgid, text: row.text?.content, sender: row.from?.userid, privateChat: row.chattype === 'single',
+        time: row.create_time, quotedReview, reply },
+        row.chatid ?? row.from?.userid, { channel: 'wecom' });
     });
     if (current(bot)) client.connect();
     return {
@@ -189,6 +232,17 @@ async function connectBot(bot: LiveBot): Promise<ConnectionClient> {
       send: async (target, text) => {
         const result = await client.sendMessage(target, { msgtype: 'markdown', markdown: { content: text } });
         return result.headers?.req_id ?? null;
+      },
+      async sendReview(recipient, text) {
+        try {
+          const result = await client.sendMessage(recipient, { msgtype: 'markdown', markdown: { content: limitWecomText(text) } });
+          return result.headers?.req_id ?? null;
+        } catch (error) {
+          const code = error && typeof error === 'object' && 'errcode' in error ? Number(error.errcode) : 0;
+          if (!code) throw error;
+          throw Object.assign(new Error(code === 846607 ? '企微限制机器人主动发送（846607），可在机器人私聊发「接管待办」查看' :
+            '企微机器人主动发送失败（' + code + '）'), { rejected: true, rateLimited: code === 846607 });
+        }
       },
     };
   }
@@ -199,7 +253,9 @@ async function connectBot(bot: LiveBot): Promise<ConnectionClient> {
     const eventDispatcher = new sdk.EventDispatcher({ logger }).register({
       'im.message.receive_v1': ({ message, sender }) => {
         if (message?.message_type !== 'text' || sender?.sender_type !== 'user') return;
-        accept(bot, message.chat_id, { id: message.message_id, text: textValue(message.content) }, { channel: 'feishu' });
+        receive({ id: message.message_id, text: textValue(message.content), sender: sender.sender_id?.open_id,
+          privateChat: message.chat_type === 'p2p', time: Number(message.create_time), replyTo: message.parent_id ?? message.root_id },
+        message.chat_id, { channel: 'feishu' });
       },
     });
     const auth = await feishuApp(secrets);
@@ -207,11 +263,17 @@ async function connectBot(bot: LiveBot): Promise<ConnectionClient> {
     setStatus(bot, 'online');
     let token = auth;
     let issued = now();
+    async function appToken() {
+      if (now() - issued > 3600000) { token = await feishuApp(secrets); issued = now(); }
+      return token;
+    }
     return {
       close: () => client.close({ force: true }),
       async send(target, text, id) {
-        if (now() - issued > 3600000) { token = await feishuApp(secrets); issued = now(); }
-        return sendFeishu(token, target, text, id);
+        return sendFeishu(await appToken(), target, text, id);
+      },
+      async sendReview(recipient, text, id) {
+        return (await createFeishuMessage(await appToken(), recipient, text, id, 'open_id')).id;
       },
     };
   }
@@ -221,11 +283,14 @@ async function connectBot(bot: LiveBot): Promise<ConnectionClient> {
   client.registerCallbackListener(TOPIC_ROBOT, (frame) => {
     try {
       const row = parse<{ conversationType?: string; msgtype?: string; robotCode?: string; isInAtList?: boolean;
-        conversationId?: string; senderStaffId?: string; msgId?: string; text?: { content?: string } }>(frame.data);
+        conversationId?: string; senderStaffId?: string; senderCorpId?: string; chatbotCorpId?: string; msgId?: string;
+        createAt?: number; text?: { content?: string } }>(frame.data);
       const group = row.conversationType === '2';
+      const sameOrganization = !row.senderCorpId || !row.chatbotCorpId || row.senderCorpId === row.chatbotCorpId;
       if (row.msgtype === 'text' && (!row.robotCode || row.robotCode === secrets.appId) &&
-        (row.conversationType === '1' || (group && row.isInAtList !== false))) {
-        accept(bot, group ? row.conversationId : row.senderStaffId, { id: row.msgId, text: row.text?.content }, { channel: 'dingtalk', group });
+        ((row.conversationType === '1' && sameOrganization) || (group && row.isInAtList !== false))) {
+        receive({ id: row.msgId, text: row.text?.content, sender: row.senderStaffId, privateChat: !group, time: row.createAt },
+          group ? row.conversationId : row.senderStaffId, { channel: 'dingtalk', group });
       }
       client.socketCallBackResponse(frame.headers.messageId, { success: true });
     } catch { setStatus(bot, 'error', '钉钉消息格式或入队异常'); }
@@ -234,30 +299,33 @@ async function connectBot(bot: LiveBot): Promise<ConnectionClient> {
   setStatus(bot, 'online');
   let token = '';
   let expiry = 0;
+  async function sendDingBot(target: string, text: string, group: boolean) {
+    const origin = 'https://api.dingtalk.com/v1.0';
+    if (now() >= expiry) {
+      const auth = await jsonRequest<{ accessToken?: string; expireIn?: number }>(origin + '/oauth2/accessToken', { method: 'POST',
+        body: { appKey: secrets.appId, appSecret: secrets.appSecret } });
+      if (!auth.accessToken || !auth.expireIn) throw Object.assign(new Error('钉钉应用认证失败'), { rejected: true });
+      token = auth.accessToken;
+      expiry = now() + Math.max(0, Number(auth.expireIn) - 120) * 1000;
+    }
+    if (!current(bot)) throw Object.assign(new Error('钉钉连接已更新'), { rejected: true });
+    const targetFields = group ? { openConversationId: target } : { userIds: [target] };
+    const path = group ? '/robot/groupMessages/send' : '/robot/oToMessages/batchSend';
+    const result = await jsonRequest<{ code?: string; invalidStaffIdList?: string[]; processQueryKey?: string }>(origin + path, { method: 'POST',
+      headers: { 'x-acs-dingtalk-access-token': token }, body: {
+        robotCode: secrets.appId, msgKey: 'sampleText',
+        msgParam: JSON.stringify({ content: Array.from(text).slice(0, 1500).join('') }), ...targetFields,
+      } });
+    if (result.code || result.invalidStaffIdList?.length) throw Object.assign(new Error('钉钉未接受回复'), { rejected: true });
+    return result.processQueryKey ?? null;
+  }
   return {
     close: () => client.disconnect(),
-    async send(target, text, _id, transport) {
+    send(target, text, _id, transport) {
       if (transport.channel !== 'dingtalk') throw new Error('钉钉会话类型无效');
-      const { group } = transport;
-      const origin = 'https://api.dingtalk.com/v1.0';
-      if (now() >= expiry) {
-        const auth = await jsonRequest<{ accessToken?: string; expireIn?: number }>(origin + '/oauth2/accessToken', { method: 'POST',
-          body: { appKey: secrets.appId, appSecret: secrets.appSecret } });
-        if (!auth.accessToken || !auth.expireIn) throw Object.assign(new Error('钉钉应用认证失败'), { rejected: true });
-        token = auth.accessToken;
-        expiry = now() + Math.max(0, Number(auth.expireIn) - 120) * 1000;
-      }
-      if (!current(bot)) throw Object.assign(new Error('钉钉连接已更新'), { rejected: true });
-      const targetFields = group ? { openConversationId: target } : { userIds: [target] };
-      const path = group ? '/robot/groupMessages/send' : '/robot/oToMessages/batchSend';
-      const result = await jsonRequest<{ code?: string; invalidStaffIdList?: string[]; processQueryKey?: string }>(origin + path, { method: 'POST',
-        headers: { 'x-acs-dingtalk-access-token': token }, body: {
-          robotCode: secrets.appId, msgKey: 'sampleText',
-          msgParam: JSON.stringify({ content: Array.from(text).slice(0, 1500).join('') }), ...targetFields,
-        } });
-      if (result.code || result.invalidStaffIdList?.length) throw Object.assign(new Error('钉钉未接受回复'), { rejected: true });
-      return result.processQueryKey ?? null;
+      return sendDingBot(target, text, transport.group);
     },
+    sendReview: (recipient, text) => sendDingBot(recipient, text, false),
   };
 }
 export function openBots() {
@@ -266,13 +334,46 @@ export function openBots() {
   let sending = false;
   recoverWecomDeliveries();
   recoverReviews();
+  function reviewSender(personal: LiveBot, route: NonNullable<ReturnType<typeof reviewRoute>>): ReviewSender | undefined {
+    const connection = connections.get(route.bot.id);
+    if (closed || !connection?.client || connection.bot.version !== route.bot.version ||
+      !get("SELECT 1 FROM bots WHERE id=? AND version=? AND enabled=1 AND status='online'", route.bot.id, route.bot.version)) return;
+    return async (text, id) => {
+      if (closed || connections.get(route.bot.id) !== connection || !current(route.bot)) throw new Error('接管机器人配置已变更');
+      const latest = get<StoredTables['bots']>('SELECT * FROM bots WHERE id=? AND version=? AND mode=? AND enabled=1', personal.id, personal.version, 'personal');
+      if (!latest || reviewRoute(hydrate(latest), [route.bot])?.key !== route.key) throw new Error('本人接管的机器人绑定已变更');
+      return connection.client!.sendReview(route.recipient, text, id);
+    };
+  }
+  function receive(robot: LiveBot, message: BotMessage, target: string | undefined, transport: Transport) {
+    if (closed || !current(robot)) return;
+    if (message.privateChat && message.id && message.sender && message.text?.trim()) {
+      const personalBots = all<StoredTables['bots']>("SELECT * FROM bots WHERE enabled=1 AND mode='personal' AND owner=? AND platform=?",
+        robot.owner, robot.platform).map(hydrate);
+      const bindings = personalBots.flatMap((personal) => {
+        const route = reviewRoute(personal, [robot]);
+        return route && route.recipient === message.sender ? [{ personal, route }] : [];
+      });
+      if (bindings.length) {
+        const [{ personal, route }] = bindings;
+        const send = bindings.length === 1 ? message.reply ?? reviewSender(personal, route) : undefined;
+        const timestamp = message.time && Number.isFinite(message.time) ? message.time : now();
+        const time = timestamp < 1e12 ? timestamp * 1000 : timestamp;
+        if (send && time >= Math.max(personal.since - 1000, now() - reviewWindow)) {
+          void handleOwnerCommand(personal, { id: message.id, sender: message.sender, text: message.text, time, mentions: [],
+            replyTo: message.replyTo }, route.key, send, message.quotedReview, Boolean(message.reply))
+            .catch(() => console.warn('接管机器人指令处理失败'));
+        }
+        return;
+      }
+    }
+    accept(robot, target, message, transport);
+  }
   async function poll(bot: LiveBot) {
     bot.secrets = await freshToken(bot);
     await verifyEmployee(bot.platform, bot.secrets, bot.settings.employeeId);
     type Target = BotSettings['targets'][number] & { name?: string | null; first_from?: number };
     const targets = new Map<string, Target>(bot.settings.targets.map((target) => [target.id, target]));
-    const ownerChat = isReviewBot(bot) ? reviewerTarget(bot) : undefined;
-    if (ownerChat) targets.set(ownerChat.id, { id: ownerChat.id, group: false, first_from: ownerChat.since });
     let failures = 0;
     const end = now() - 2000;
     if (bot.platform === 'wecom' && bot.settings.discoverGroups !== false) {
@@ -298,7 +399,6 @@ export function openBots() {
     }
     async function pollTarget(target: Target) {
       if (closed || !current(bot)) return;
-      const self = target.id === ownerChat?.id;
       const checkpoint = get<{ checkpoint: number }>('SELECT checkpoint FROM cursors WHERE bot=? AND version=? AND target=?', bot.id, bot.version, target.id)?.checkpoint;
       const floor = target.first_from ?? bot.since;
       const start = Math.max(floor, (checkpoint ?? floor) - 15000);
@@ -306,16 +406,12 @@ export function openBots() {
       if (end - start > 6 * 86400000) throw new Error('接管积压超过六天，请重新启用连接');
       const items = await history(bot, target.id, start, end);
       if (closed || !current(bot)) return;
-      if (bot.platform === 'wecom' && !self) {
+      if (bot.platform === 'wecom') {
         for (const item of items) {
           if (item.file && !item.system && item.sender !== bot.settings.employeeId) rememberWecomFile(bot, target.id, item);
         }
       }
       for (const item of items) {
-        if (self) {
-          await handleOwnerCommand(bot, item);
-          continue;
-        }
         if (item.system || item.sender === bot.settings.employeeId || (target.group && !item.mentions?.includes(bot.settings.employeeId))) continue;
         if (items.some((later) => !later.system && later.sender === bot.settings.employeeId && later.time >= item.time)) continue;
         accept(bot, target.id, item, { channel: 'personal', sourceTime: item.time, sourceId: item.id }, target.name ?? target.id);
@@ -328,9 +424,13 @@ export function openBots() {
       const results = await Promise.allSettled(list.slice(index, index + 5).map(pollTarget));
       failures += results.filter((result) => result.status === 'rejected').length;
     }
-    setStatus(bot, failures ? 'error' : 'online', failures ? failures + ' 项会话读取或群聊发现失败' : null);
+    const active = enabledBots();
+    const personal = active.find((item) => item.id === bot.id && item.version === bot.version);
+    const route = personal && reviewRoute(personal, active);
+    setStatus(bot, failures ? 'error' : 'online', failures ? failures + ' 项会话读取或群聊发现失败' :
+      !personal || !route ? '请绑定接管机器人以接收待办' : !reviewSender(personal, route) ? '等待接管机器人上线' : null);
   }
-  async function deliver(row: BotRun) {
+  async function deliver(row: BotRun, channel?: { key: string; send: ReviewSender }) {
     const stillPending = () => Boolean(get("SELECT 1 FROM runs WHERE id=? AND reply='pending'", row.id));
     if (!get("SELECT 1 FROM runs WHERE id=? AND reply IN ('pending','awaiting_review')", row.id)) return;
     const record = get<StoredTables['bots']>('SELECT * FROM bots WHERE id=? AND enabled=1 AND version=?', row.bot, row.version);
@@ -340,18 +440,26 @@ export function openBots() {
         state, receipt, state === 'accepted' ? now() : null, detail, row.id);
     if (!record || now() - row.created > (isReviewBot(record) ? reviewWindow : 600000)) return finish('canceled');
     const bot = hydrate(record);
+    const publish = async () => {
+      try { return await prepareReply(row.id, () => publishReplyDocument(bot, row.id)); }
+      catch (error) {
+        const detail = error instanceof Error ? error.message.replace(/https?:\/\/\S+/g, '[地址]').slice(0, 300) : '平台未返回操作结果';
+        finish('failed', null, '云文档交付失败。' + detail);
+      }
+    };
     const command = isReviewBot(bot) && commandForRun(row.id);
     const checkInbound = () => prepareReply(row.id, () => mayHandleInbound(row));
     if (command && command.decision !== 'reply') return finish('canceled');
     if (isReviewBot(bot) && !command) {
       const review = get<ReplyReview>('SELECT * FROM reply_reviews WHERE id=?', row.id);
       if (row.reply === 'awaiting_review' && review?.state === 'queued') {
+        if (!channel) return;
         if (!await checkInbound() || closed || !current(bot)) {
           const expired = run("UPDATE reply_reviews SET state='expired' WHERE id=? AND state='queued'", row.id).changes;
           if (expired) finish('canceled');
           return;
         }
-        return notifyReviewer(bot, row);
+        return notifyReviewer(bot, row, channel.key, channel.send);
       }
       if (row.reply !== 'pending') return;
       if (review?.state !== 'approved') {
@@ -366,25 +474,26 @@ export function openBots() {
     if (!row.transport || !row.answer) return finish('canceled');
     const transport = unseal<Transport>(row.transport);
     if (bot.platform === 'wecom' && bot.mode === 'personal') {
+      const file = generatedReplyFile(row.id);
+      const fileDetail = file ? 'Word 成品已保存在工作台。企微本人接口仅支持文字，原生附件未发送。' : null;
       const previousParts = wecomReplyParts(row.id);
       if (previousParts.length && previousParts.every((part) => part.state === 'accepted')) {
-        return finish('accepted', previousParts.at(-1)?.receipt);
+        return finish('accepted', previousParts.at(-1)?.receipt, previousParts.some((part) => part.document_id) ? null : fileDetail);
       }
       if (!await checkInbound() || closed || !current(bot) || !stillPending()) return finish('canceled');
       let proposed: string[] = [];
       if (!previousParts.length) {
-        const link = await prepareReply(row.id, () => publishReplyDocument(bot, row.id));
-        if (!stillPending()) return;
+        const link = await publish();
+        if (link === undefined || !stillPending()) return;
         if (link && !await checkInbound()) return finish('canceled');
         proposed = splitWecomReply(wecomPlainText(row.answer), link);
         if (!proposed.length) return finish('canceled');
       }
       if (closed || !current(bot)) return finish('canceled');
-      const file = bot.secrets.documentMcp ? generatedReplyFile(row.id) : undefined;
-      if (!beginWecomDelivery(row.id, proposed, file)) return;
+      if (!beginWecomDelivery(row.id, proposed)) return;
       try {
         finish('accepted', await sendWecomParts(bot, row.target, row.id, () => !closed && Boolean(current(bot)) &&
-          Boolean(get("SELECT 1 FROM runs WHERE id=? AND reply='sending'", row.id))));
+          Boolean(get("SELECT 1 FROM runs WHERE id=? AND reply='sending'", row.id))), fileDetail);
       }
       catch (error) {
         finish(error instanceof Error && 'canceled' in error ? 'canceled' :
@@ -404,8 +513,8 @@ export function openBots() {
       send = () => client.send(row.target, replyText, row.id, transport);
     }
     if (closed || !current(bot) || !stillPending()) return finish('canceled');
-    const documentLink = await prepareReply(row.id, () => publishReplyDocument(bot, row.id));
-    if (!stillPending()) return;
+    const documentLink = await publish();
+    if (documentLink === undefined || !stillPending()) return;
     if (documentLink && bot.mode === 'personal' && !await checkInbound()) return finish('canceled');
     if (closed || !current(bot)) return finish('canceled');
     const suffix = documentLink ? '\n\n' + documentLink : '';
@@ -418,7 +527,7 @@ export function openBots() {
   }
   return {
     tick() {
-      const bots = all<StoredTables['bots']>('SELECT * FROM bots WHERE enabled=1').map(hydrate);
+      const bots = enabledBots();
       for (const [id, connection] of connections) {
         if (bots.some((bot) => bot.id === id && bot.version === connection.bot.version)) continue;
         connections.delete(id);
@@ -434,7 +543,7 @@ export function openBots() {
           try {
             if (bot.mode === 'personal') await poll(bot);
             else {
-              connection.client = await connectBot(bot);
+              connection.client = await connectBot(bot, (message, target, transport) => receive(bot, message, target, transport));
               if (closed || connections.get(bot.id) !== connection) connection.client.close();
             }
           } catch {
@@ -450,18 +559,35 @@ export function openBots() {
       if (!sending) {
         expireReviews();
         sending = true;
-        const pending = all<BotRun>(`SELECT r.*,c.bot,c.version,c.target,c.title FROM runs r JOIN chats c ON c.id=r.chat
-          LEFT JOIN reply_reviews v ON v.id=r.id
-          WHERE r.reply='pending' OR (r.reply='awaiting_review' AND v.state='queued')
-          ORDER BY r.created LIMIT 20`);
         void (async () => {
+          const channels = new Map<string, { key: string; send: ReviewSender }>();
+          const bindings = bots.filter(isReviewBot).flatMap((personal) => {
+            const route = reviewRoute(personal, bots);
+            return route ? [{ personal, route }] : [];
+          });
+          for (const { personal, route } of bindings) {
+            if (bindings.filter((item) => item.route.key === route.key).length !== 1) continue;
+            const send = reviewSender(personal, route);
+            if (!send) continue;
+            channels.set(personal.id, { key: route.key, send });
+            run(`UPDATE reply_reviews SET state='queued',notified=NULL,notice_receipt=NULL,notice_channel=NULL
+              WHERE state IN ('ready','failed','unknown') AND notice_channel IS NOT ? AND id IN (
+                SELECT r.id FROM runs r JOIN chats c ON c.id=r.chat
+                WHERE r.reply='awaiting_review' AND c.bot=? AND c.version=?
+              )`, route.key, personal.id, personal.version);
+          }
+          const pending = all<BotRun>(`SELECT r.*,c.bot,c.version,c.target,c.title FROM runs r JOIN chats c ON c.id=r.chat
+            LEFT JOIN reply_reviews v ON v.id=r.id
+            WHERE r.reply='pending' OR (r.reply='awaiting_review' AND v.state='queued' AND c.bot IN (SELECT value FROM json_each(?)))
+            ORDER BY r.created LIMIT 20`, JSON.stringify([...channels.keys()]));
           for (const row of pending) {
             if (closed) break;
-            await deliver(row);
+            await deliver(row, channels.get(row.bot));
           }
           for (const bot of bots.filter(isReviewBot)) {
             if (closed) break;
-            await notifyCommandResults(bot);
+            const channel = channels.get(bot.id);
+            if (channel) await notifyCommandResults(bot, channel.send);
           }
         })().catch((error) => console.error('IM worker:', error.name)).finally(() => { sending = false; });
       }

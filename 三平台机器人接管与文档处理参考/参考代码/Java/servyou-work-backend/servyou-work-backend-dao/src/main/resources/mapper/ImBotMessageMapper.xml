@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.servyou.work.dao.mapper.ImBotMessageMapper">
+ <sql id="currentOwner">
+  EXISTS (SELECT 1 FROM sw_im_bot b WHERE b.id=sw_im_bot_message.bot_id
+   AND b.owner_node=#{node} AND b.owner_version=#{version} AND b.lease_until &gt; CURRENT_TIMESTAMP(6))
+ </sql>
+ <update id="skipReplied">
+  UPDATE sw_im_bot_message SET process_state='CANCELED',send_state='CANCELED',
+   last_error='本人已回复或接管配置已变化，跳过自动回复',update_time=CURRENT_TIMESTAMP(6)
+  WHERE id=#{id} AND (send_state IS NULL OR send_state NOT IN ('ACCEPTED','UNKNOWN','FAILED'))
+   AND <include refid="currentOwner"/>
+ </update>
+ <!-- 使用普通等值及空值判断，字符串遵循数据库默认比较规则。 -->
+ <sql id="snapshotChanged">
+  NOT COALESCE(reply_content=#{row.replyContent},
+   reply_content IS NULL AND #{row.replyContent} IS NULL)
+  OR NOT COALESCE(process_state=#{row.processState},process_state IS NULL AND #{row.processState} IS NULL)
+  OR NOT COALESCE(provider_uuid=#{row.providerUuid},provider_uuid IS NULL AND #{row.providerUuid} IS NULL)
+ </sql>
+ <select id="selectDispatch" resultType="cn.com.servyou.work.dao.entity.ImBotMessageEntity">
+  SELECT m.* FROM sw_im_bot_message m WHERE m.bot_id=#{botId}
+   AND m.process_state IN ('QUEUED','RUNNING','WAITING_INPUT','RECOVERING','CANCEL_REQUESTED')
+   AND NOT EXISTS (SELECT 1 FROM sw_im_bot_message earlier
+    WHERE earlier.bot_id=m.bot_id AND earlier.target_session_id=m.target_session_id AND earlier.id &lt; m.id
+     AND earlier.process_state IN ('QUEUED','RUNNING','WAITING_INPUT','RECOVERING','CANCEL_REQUESTED'))
+   AND NOT EXISTS (SELECT 1 FROM sw_im_bot_message artifact
+    WHERE artifact.bot_id=m.bot_id AND artifact.target_session_id=m.target_session_id
+     AND artifact.direction='OUTBOUND' AND artifact.content_type='FILE' AND artifact.send_state IN ('PENDING','SENDING'))
+  ORDER BY m.id LIMIT #{limit}
+ </select>
+ <insert id="acceptInbound">
+  INSERT INTO sw_im_bot_message (id,bot_id,tenant_id,user_id,target_session_id,direction,content_type,content,
+   inbound_key,external_message_id,reply_context,provider_uuid,request_id,process_state,session_id,processing_owner_version,expires_at)
+  SELECT #{row.id},b.id,#{row.tenantId},#{row.userId},#{row.targetSessionId},#{row.direction},#{row.contentType},#{row.content},
+   #{row.inboundKey},#{row.externalMessageId},#{row.replyContext},#{row.providerUuid},#{row.requestId},#{row.processState},#{row.sessionId},#{version},TIMESTAMPADD(HOUR,24,CURRENT_TIMESTAMP(6))
+  FROM sw_im_bot b WHERE b.id=#{row.botId} AND b.owner_node=#{node} AND b.owner_version=#{version}
+   AND b.lease_until &gt; CURRENT_TIMESTAMP(6) AND b.enabled=1
+ </insert>
+ <update id="transition">
+  UPDATE sw_im_bot_message SET
+  <if test="process != null">process_state=#{process},processing_owner_version=#{version},</if>
+  <if test="send != null">send_state=#{send},</if>
+  update_time=CURRENT_TIMESTAMP(6)
+  WHERE id=#{id}
+  <if test="expectedProcess != null">AND process_state=#{expectedProcess}</if>
+  <if test="expectedSend != null">AND send_state=#{expectedSend}</if>
+  AND <include refid="currentOwner"/>
+  <if test="process == 'RUNNING' or send == 'SENDING'">
+   AND EXISTS (SELECT 1 FROM sw_im_bot b WHERE b.id=sw_im_bot_message.bot_id AND b.enabled=1)
+  </if>
+ </update>
+ <update id="progress">
+  UPDATE sw_im_bot_message SET process_state=CASE
+   WHEN process_state='CANCEL_REQUESTED' AND #{row.processState} IN ('SUCCEEDED','FAILED','CANCELED') THEN 'CANCELED'
+   WHEN process_state='CANCEL_REQUESTED' THEN process_state ELSE #{row.processState} END,
+   send_state=CASE WHEN send_state='CANCELED' OR process_state='CANCELED' THEN 'CANCELED'
+    WHEN send_state='SENDING' AND (#{row.sendState} IS NULL OR #{row.sendState}='PENDING') THEN 'SENDING'
+    WHEN send_state='PENDING' AND #{row.sendState} IS NULL THEN 'PENDING' ELSE #{row.sendState} END,
+   reply_content=#{row.replyContent},session_id=#{row.sessionId},db_message_id=#{row.dbMessageId},run_id=#{row.runId},
+   last_seq=GREATEST(last_seq,COALESCE(#{row.lastSeq},0)),last_error=#{row.lastError},provider_message_id=COALESCE(provider_message_id,#{row.providerMessageId}),
+   processing_owner_version=#{version},update_time=CURRENT_TIMESTAMP(6)
+  WHERE id=#{row.id} AND <include refid="currentOwner"/>
+   AND (process_state IS NULL OR process_state NOT IN ('SUCCEEDED','FAILED','CANCELED') OR process_state=#{row.processState})
+   AND (send_state IS NULL OR send_state NOT IN ('ACCEPTED','FAILED','UNKNOWN') OR send_state=#{row.sendState})
+ </update>
+ <update id="checkpoint">
+  UPDATE sw_im_bot_message SET process_state=CASE WHEN process_state='CANCEL_REQUESTED' THEN process_state ELSE #{row.processState} END,
+   db_message_id=COALESCE(#{row.dbMessageId},db_message_id),run_id=COALESCE(#{row.runId},run_id),
+   last_seq=GREATEST(last_seq,COALESCE(#{row.lastSeq},0)),processing_owner_version=#{version},update_time=CURRENT_TIMESTAMP(6)
+  WHERE id=#{row.id} AND <include refid="currentOwner"/>
+   AND process_state NOT IN ('SUCCEEDED','FAILED','CANCELED') AND last_seq &lt;= COALESCE(#{row.lastSeq},0)
+ </update>
+ <update id="publish">
+  UPDATE sw_im_bot_message SET
+   send_state=CASE
+    WHEN send_state IN ('CANCELED','FAILED','UNKNOWN','SENDING') THEN send_state
+    WHEN #{row.replyContent} IS NULL THEN send_state
+    WHEN <include refid="snapshotChanged"/> THEN 'PENDING'
+    ELSE send_state END,
+   process_state=CASE WHEN process_state='CANCEL_REQUESTED' THEN process_state ELSE #{row.processState} END,
+   reply_content=#{row.replyContent},reply_context=#{row.replyContext},provider_uuid=#{row.providerUuid},
+   session_id=#{row.sessionId},db_message_id=#{row.dbMessageId},run_id=#{row.runId},
+   last_seq=GREATEST(last_seq,COALESCE(#{row.lastSeq},0)),
+   last_error=CASE WHEN send_state IN ('FAILED','UNKNOWN') THEN last_error ELSE #{row.lastError} END,
+   processing_owner_version=#{version},update_time=CURRENT_TIMESTAMP(6)
+  WHERE id=#{row.id} AND direction='INBOUND' AND <include refid="currentOwner"/>
+   AND process_state NOT IN ('SUCCEEDED','FAILED','CANCELED','CANCEL_REQUESTED')
+   AND last_seq &lt;= COALESCE(#{row.lastSeq},0)
+ </update>
+ <update id="acknowledge">
+  UPDATE sw_im_bot_message SET
+   send_state=CASE WHEN #{state}='ACCEPTED' AND direction='INBOUND'
+    AND (<include refid="snapshotChanged"/>) THEN 'PENDING' ELSE #{state} END,
+   provider_message_id=COALESCE(#{providerId},provider_message_id),last_error=#{error},update_time=CURRENT_TIMESTAMP(6)
+  WHERE id=#{row.id} AND send_state=#{row.sendState} AND <include refid="currentOwner"/>
+ </update>
+ <update id="consumeAnswer">
+  UPDATE sw_im_bot_message answer INNER JOIN sw_im_bot_message source ON source.id=#{sourceId}
+   INNER JOIN sw_im_bot b ON b.id=source.bot_id
+  SET answer.process_state='SUCCEEDED',answer.db_message_id=source.db_message_id,answer.run_id=source.run_id,
+   answer.reply_context=JSON_SET(COALESCE(answer.reply_context,'{}'),'$.answerTo',CAST(source.id AS CHAR)),
+   answer.processing_owner_version=#{version},answer.update_time=CURRENT_TIMESTAMP(6)
+  WHERE answer.id=#{id} AND answer.direction='INBOUND' AND answer.content_type='TEXT' AND answer.process_state='QUEUED'
+   AND source.process_state='WAITING_INPUT' AND answer.id &gt; source.id
+   AND answer.bot_id=source.bot_id AND answer.tenant_id=source.tenant_id
+   AND answer.user_id=source.user_id AND answer.target_session_id=source.target_session_id
+   AND b.owner_node=#{node} AND b.owner_version=#{version} AND b.lease_until &gt; CURRENT_TIMESTAMP(6)
+   AND b.enabled=1 AND b.auto_process_enabled=1
+   AND EXISTS (SELECT 1 FROM sw_im_bot_user u WHERE (u.bot_id=b.id OR (u.id=b.id AND u.bot_id=b.parent_bot_id)) AND u.tenant_id=answer.tenant_id
+    AND u.user_id=answer.user_id AND u.authorized=1 AND u.external_user_key IS NOT NULL)
+ </update>
+ <update id="attachFile">
+  UPDATE sw_im_bot_message SET file_id=#{fileId},content=#{name},reply_context=#{context},
+   processing_owner_version=#{version},update_time=CURRENT_TIMESTAMP(6)
+  WHERE id=#{id} AND direction='INBOUND' AND content_type='FILE' AND file_id IS NULL AND process_state='QUEUED'
+   AND <include refid="currentOwner"/>
+   AND EXISTS (SELECT 1 FROM sw_im_bot b WHERE b.id=sw_im_bot_message.bot_id AND b.enabled=1 AND b.auto_process_enabled=1)
+   AND EXISTS (SELECT 1 FROM sw_im_bot_user u WHERE (u.bot_id=sw_im_bot_message.bot_id OR u.id=sw_im_bot_message.bot_id)
+    AND u.user_id=sw_im_bot_message.user_id AND u.tenant_id=sw_im_bot_message.tenant_id AND u.authorized=1 AND u.external_user_key IS NOT NULL)
+ </update>
+ <insert id="acceptResult">
+  INSERT INTO sw_im_bot_message (id,bot_id,tenant_id,user_id,target_session_id,direction,content_type,file_id,content,
+   external_message_id,reply_context,provider_uuid,request_id,request_hash,send_state,session_id,db_message_id,run_id,expires_at,processing_owner_version)
+  SELECT #{row.id},s.bot_id,s.tenant_id,s.user_id,s.target_session_id,'OUTBOUND',#{row.contentType},#{row.fileId},#{row.content},
+   s.external_message_id,#{row.replyContext},#{row.providerUuid},#{row.requestId},#{row.requestHash},'PENDING',s.session_id,s.db_message_id,s.run_id,s.expires_at,#{version}
+  FROM sw_im_bot_message s INNER JOIN sw_im_bot b ON b.id=s.bot_id
+  WHERE s.id=#{sourceId} AND s.process_state='SUCCEEDED' AND b.owner_node=#{node} AND b.owner_version=#{version}
+   AND b.lease_until &gt; CURRENT_TIMESTAMP(6) AND b.enabled=1
+  ON DUPLICATE KEY UPDATE id=sw_im_bot_message.id
+ </insert>
+</mapper>

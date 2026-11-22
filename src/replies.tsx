@@ -72,7 +72,7 @@ function ReplyDetail({ id, close, openChat, revision, refresh }: {
         <p style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{row.document.content}</p>
       </details>}
       {row.reply === 'awaiting_review' && <Alert type="info" showIcon
-        title={'在' + (row.source === 'wecom' ? '企微' : Sources[row.source]) + '发给自己「接管 ' + row.id.slice(0, 8) + '」'} />}
+        title={'在' + (row.source === 'wecom' ? '企微' : Sources[row.source]) + '的接管机器人私聊发送「接管 ' + row.id.slice(0, 8) + '」'} />}
       {row.sent_at && <small>平台受理时间 {date(row.sent_at)}</small>}
     </div>}
   </Modal>;

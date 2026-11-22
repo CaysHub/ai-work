@@ -35,15 +35,53 @@ test('Windows 工作台完整链路', async (t) => {
   const written: string[] = [];
   const delivered: { receive_id: string; content: string; uuid: string }[] = [];
   const notices: { id: string; text: string }[] = [];
+  const botEvents = { wecom: [] as object[], feishu: [] as object[], dingtalk: [] as object[] };
+  const wecomNotices: { target: string; text: string }[] = [];
+  let wecomProactiveLimited = false;
+  const dingNotices: { target: string; text: string }[] = [];
+  const dingDelivered: { token?: string; target: string; text: string }[] = [];
+  const dingIncoming: { openConversationId: string; openMessageId: string; createTime: number;
+    sendType: string; senderOpenDingTalkId: string; content: string }[] = [];
   model.on('request', async (request, response) => {
     const url = new URL(request.url ?? '/', 'http://localhost');
-    if (!url.pathname.startsWith('/feishu/')) return;
+    if (!/^\/(feishu|robot|dingtalk)\//.test(url.pathname)) return;
     let raw = '';
     for await (const chunk of request) raw += chunk;
     const body = raw ? JSON.parse(raw) : null;
     const path = url.pathname.replace('/feishu', '');
     function send(data: object, status = 200) {
       response.writeHead(status, { 'Content-Type': 'application/json' }).end(JSON.stringify(data));
+    }
+    if (url.pathname.startsWith('/robot/')) {
+      const platform = url.pathname.split('/').at(-1) as keyof typeof botEvents;
+      if (request.method === 'GET') return send(botEvents[platform].splice(0));
+      if (platform === 'wecom') {
+        if (wecomProactiveLimited && !body.passive) return send({ errcode: 846607, errmsg: 'aibot send msg frequency limit exceeded' });
+        wecomNotices.push({ target: body.target, text: body.body.markdown.content });
+        return send({ headers: { req_id: 'wecom-notice-' + wecomNotices.length }, errcode: 0 });
+      }
+    }
+    if (url.pathname === '/dingtalk/v1.0/oauth2/accessToken') {
+      assert.equal(body.appSecret, 'fixture-ding-app-secret');
+      return send({ accessToken: 'app-ding-token', expireIn: 7200 });
+    }
+    if (url.pathname === '/dingtalk/v1.0/robot/oToMessages/batchSend') {
+      assert.equal(request.headers['x-acs-dingtalk-access-token'], 'app-ding-token');
+      dingNotices.push({ target: body.userIds[0], text: JSON.parse(body.msgParam).content });
+      return send({ processQueryKey: 'ding-notice-' + dingNotices.length });
+    }
+    if (url.pathname.startsWith('/dingtalk/server/')) {
+      const token = request.headers['x-user-access-token'];
+      assert.equal(token, 'employee-ding-token');
+      const { name, arguments: args } = body.params;
+      const result = (data: object) => send({ id: 1, result: { structuredContent: data } });
+      if (name === 'get_current_user_profile') return result([{ orgEmployeeModel: { openDingTalkId: 'ding-owner' } }]);
+      if (name === 'list_conversation_message_v2') return result({ hasMore: false, messages: dingIncoming.filter((item) =>
+        item.openConversationId === args.openconversation_id && item.createTime <= Number(args.time)) });
+      if (name === 'send_personal_message') {
+        dingDelivered.push({ token, target: args.openConversationId, text: JSON.parse(args.content).content });
+        return result({ openConversationId: args.openConversationId, openMessageId: 'ding-personal-reply' });
+      }
     }
     if (path === '/oauth/v3/token' && body.code === 'fixture-code') {
       return send({ code: 0, access_token: 'employee-fixture', refresh_token: 'employee-refresh', expires_in: 3600 });
@@ -58,13 +96,6 @@ test('Windows 工作台完整链路', async (t) => {
           return send({ code: 0, data: { items: incoming.filter((row) =>
             row.chat_id === target && Number(row.create_time) >= start && Number(row.create_time) <= end), has_more: false } });
         }
-        if (body.receive_id === 'ou_fixture' || body.receive_id === 'oc_self_fixture') {
-          const id = 'om_self_' + notices.length;
-          notices.push({ id, text: JSON.parse(body.content).text });
-          incoming.push({ chat_id: 'oc_self_fixture', sender: { id: 'ou_fixture', sender_type: 'user' },
-            msg_type: 'text', body: { content: body.content }, create_time: String(Date.now()), message_id: id });
-          return send({ code: 0, data: { chat_id: 'oc_self_fixture', message_id: id } });
-        }
         delivered.push(body);
         return send({ code: 0, data: { message_id: 'om_reply' } });
       }
@@ -73,6 +104,12 @@ test('Windows 工作台完整链路', async (t) => {
       return send({ code: 0, tenant_access_token: 'application-fixture' });
     }
     if (request.headers.authorization === 'Bearer application-fixture') {
+      if (path === '/open-apis/im/v1/messages') {
+        if (body.receive_id !== 'ou_fixture' || url.searchParams.get('receive_id_type') !== 'open_id') return send({ code: 1 }, 400);
+        const id = 'om_bot_' + notices.length;
+        notices.push({ id, text: JSON.parse(body.content).text });
+        return send({ code: 0, data: { chat_id: 'oc_robot_fixture', message_id: id } });
+      }
       const doc = '/open-apis/docx/v1/documents';
       if (path === doc) return send({ code: 0, data: { document: { document_id: 'mock_doc' } } });
       if (path === doc + '/blocks/convert') return send({ code: 0, data: {
@@ -232,6 +269,8 @@ test('Windows 工作台完整链路', async (t) => {
   assert.equal((await user<{ runs: ChatRun[] }>('/chats/' + chat)).body.runs.length, 3);
   const continued = await user<{ id: string }>('/chats/' + chat + '/runs', 'POST', { prompt: '继续对话' });
   assert.equal((await answer(chat, continued.body.id)).answer, '本地模型回复。');
+  assert.equal((await user('/bots', 'POST', { name: '飞书指挥机器人', platform: 'feishu', mode: 'bot',
+    enabled: true, secrets: { appId: 'fixture-app', appSecret: 'fixture-app-secret' } })).status, 200);
   const profile = { name: '飞书本人接管', platform: 'feishu', mode: 'personal',
     settings: { employeeId: 'ou_fixture', targets: [{ id: 'oc_fixture', group: true }] },
     secrets: { appId: 'fixture-app', appSecret: 'fixture-app-secret' } };
@@ -269,9 +308,12 @@ test('Windows 工作台完整链路', async (t) => {
   const original = waitingFeishu.find((row) => row.prompt === '创建飞书文档');
   assert.ok(feishuNotice && original);
   assert.equal((await user('/replies/' + original.id + '/decision', 'POST', { action: 'approve' })).status, 409);
-  incoming.push({ chat_id: 'oc_self_fixture', sender: { id: 'ou_fixture', sender_type: 'user' },
-    msg_type: 'text', body: { content: JSON.stringify({ text: '按这个发，用一句话就好' }) }, parent_id: feishuNotice.id,
-    create_time: String(Date.now()), message_id: 'om_owner_review' });
+  const feishuCommand = (id: string, text: string, parent: string) => botEvents.feishu.push({
+    sender: { sender_id: { open_id: 'ou_fixture' }, sender_type: 'user' },
+    message: { chat_id: 'oc_robot_fixture', chat_type: 'p2p', message_type: 'text', content: JSON.stringify({ text }),
+      parent_id: parent, create_time: String(Date.now()), message_id: id },
+  });
+  feishuCommand('om_owner_review', '按这个发，用一句话就好', feishuNotice.id);
   const results = await eventually(async () => {
     const response = await user<BotActivity[]>('/bots/' + bot.body.id + '/activity');
     return response.body.some((row) => row.reply === 'accepted') && response.body;
@@ -295,9 +337,7 @@ test('Windows 工作台完整链路', async (t) => {
   const otherFeishu = waitingFeishu.find((row) => row.prompt === '其他来信也请给草稿');
   const otherNotice = notices.find((notice) => notice.text.includes('其他来信也请给草稿'));
   assert.ok(otherFeishu && otherNotice);
-  incoming.push({ chat_id: 'oc_self_fixture', sender: { id: 'ou_fixture', sender_type: 'user' },
-    msg_type: 'text', body: { content: JSON.stringify({ text: '按这个发送。' }) }, parent_id: otherNotice.id,
-    create_time: String(Date.now()), message_id: 'om_owner_approve_exact' });
+  feishuCommand('om_owner_approve_exact', '按这个发送。', otherNotice.id);
   const plainApproval = await eventually(async () => {
     const row = (await user<{ runs: ChatRun[] }>('/chats/' + original.chat)).body.runs
       .find((run) => run.id !== otherFeishu.id && run.prompt === otherFeishu.prompt && run.reply === 'accepted');
@@ -305,9 +345,33 @@ test('Windows 工作台完整链路', async (t) => {
   }, 22000);
   assert.equal(plainApproval.reply_text, otherFeishu.answer);
   assert.deepEqual(plainApproval.tool_log, []);
+  const dingRobot = await user<Bot>('/bots', 'POST', { name: '钉钉指挥机器人', platform: 'dingtalk', mode: 'bot', enabled: true,
+    settings: { targets: [{ id: 'ding-staff', group: false }] }, secrets: { appId: 'fixture-ding-app', appSecret: 'fixture-ding-app-secret' } });
+  assert.equal(dingRobot.status, 200);
+  const ding = await user<Bot>('/bots', 'POST', { name: '钉钉本人接管', platform: 'dingtalk', mode: 'personal', enabled: true,
+    settings: { employeeId: 'ding-owner', reviewBotId: dingRobot.body.id, reviewUserId: 'ding-staff',
+      targets: [{ id: 'ding-colleague-chat', group: false }] }, secrets: { userToken: 'employee-ding-token' } });
+  assert.equal(ding.status, 200);
+  await sleep(40);
+  dingIncoming.push({ openConversationId: 'ding-colleague-chat', openMessageId: 'ding-inbound', createTime: Date.now(), sendType: 'user',
+    senderOpenDingTalkId: 'ding-colleague', content: '钉钉验收测试问题' });
+  const dingDraft = await eventually(async () => (await user<ReplyPage>('/replies?botId=' + ding.body.id)).body.rows
+    .find((row) => row.review_state === 'ready'), 28000);
+  assert.equal(dingDelivered.length, 0);
+  assert.ok(dingNotices.some((item) => item.target === 'ding-staff' && item.text.includes(dingDraft.id.slice(0, 8))));
+  const dingCommand = { conversationType: '1', msgtype: 'text', robotCode: 'fixture-ding-app', msgId: 'ding-approve',
+    senderStaffId: 'ding-staff', senderCorpId: 'fixture-org', chatbotCorpId: 'fixture-org', text: { content: '按这个发' }, createAt: Date.now() };
+  botEvents.dingtalk.push({ ...dingCommand, msgId: 'ding-untrusted', senderCorpId: 'other-org' }, dingCommand, dingCommand);
+  await eventually(() => dingNotices.some((item) => item.target === 'ding-staff' && item.text.includes('已回复原会话')), 15000);
+  assert.deepEqual(dingDelivered, [{ token: 'employee-ding-token', target: 'ding-colleague-chat', text: dingDraft.answer }]);
+  const wecomRobot = await user<Bot>('/bots', 'POST', { name: '企微指挥机器人', platform: 'wecom', mode: 'bot',
+    enabled: true, settings: { targets: [{ id: 'wecom_staff_fixture', group: false }] },
+    secrets: { botId: 'wecom-application', botSecret: 'robot-fixture' } });
+  assert.equal(wecomRobot.status, 200);
   const wecomBot = await user<Bot>('/bots', 'POST', {
     name: '企微接管验收', platform: 'wecom', mode: 'personal', enabled: true,
-    settings: { employeeId: 'employee_fixture', targets: [{ id: 'colleague_fixture', group: false }] },
+    settings: { employeeId: 'employee_fixture', reviewBotId: wecomRobot.body.id, reviewUserId: 'wecom_staff_fixture',
+      targets: [{ id: 'colleague_fixture', group: false }] },
     secrets: { messageMcp: 'https://qyapi.weixin.qq.com/mcp/v2/bot/msg?apikey=fixture',
       documentMcp: 'https://qyapi.weixin.qq.com/mcp/v2/bot/doc?apikey=fixture' },
   });
@@ -337,8 +401,9 @@ test('Windows 工作台完整链路', async (t) => {
   assert.deepEqual(wecom.searched, [['验收']]);
   assert.deepEqual(wecom.sheetRanges, [{ docid: 'search_fixture_sheet', sheet_id: 'fixture_subsheet', range: 'A7:J17', mode: 'csv' }]);
   assert.equal(wecom.created.length, 0);
-  assert.equal(wecom.sent.length, 2);
-  assert.ok(wecom.sent.every((item) => item.target === 'employee_fixture'));
+  assert.equal(wecom.sent.length, 0);
+  assert.equal(wecomNotices.length, 2);
+  assert.ok(wecomNotices.every((item) => item.target === 'wecom_staff_fixture'));
   const groupDraft = drafts.find((row) => row.target === 'group_fixture');
   const privateDraft = drafts.find((row) => row.target === 'colleague_fixture');
   assert.ok(groupDraft && privateDraft);
@@ -358,12 +423,12 @@ test('Windows 工作台完整链路', async (t) => {
   assert.ok(privateDraft.draft?.includes('周三 14:30'), JSON.stringify({ draft: privateDraft.draft,
     tools: (await user<{ runs: ChatRun[] }>('/chats/' + privateDraft.chat)).body.runs[0].tool_log }));
   assert.ok(Buffer.byteLength(privateDraft.draft ?? '') > 2048);
-  const privateNotice = wecom.sent.find((item) => item.text.includes('接管 ' + privateDraft.id.slice(0, 8)));
+  const privateNotice = wecomNotices.find((item) => item.text.includes('接管 ' + privateDraft.id.slice(0, 8)));
   assert.ok(privateNotice && Buffer.byteLength(privateNotice.text) <= 2000 && privateNotice.text.includes('…'));
   const previewDraft = await user<ReplyRecord>('/replies/' + groupDraft.id);
   assert.ok(previewDraft.body.document?.content.includes('项目将于周五交付'));
   assert.equal(previewDraft.body.document?.url, null);
-  assert.ok(wecom.sent.some((item) => item.text.includes('接管 ' + groupDraft.id.slice(0, 8))));
+  assert.ok(wecomNotices.some((item) => item.text.includes('接管 ' + groupDraft.id.slice(0, 8))));
   const decision = '/replies/' + groupDraft.id + '/decision';
   assert.equal((await request(decision, { method: 'POST', body: { action: 'approve' }, cookie: member })).status, 404);
   assert.equal((await request<{ total: number }>('/replies', { cookie: member })).body.total, 0);
@@ -371,7 +436,11 @@ test('Windows 工作台完整链路', async (t) => {
   await stop();
   await start();
   assert.equal((await user<ReplyRecord>('/replies/' + groupDraft.id)).body.review_state, 'ready');
-  const owner = 'employee_fixture';
+  const owner = 'wecom_staff_fixture';
+  const mcpOwner = 'employee_fixture';
+  const wecomCommand = ({ id, sender, text }: { id: string; sender: string; text: string }, group = false) =>
+    botEvents.wecom.push({ aibotid: 'wecom-application', msgid: id, from: { userid: sender },
+      chattype: group ? 'group' : 'single', chatid: group ? 'group_fixture' : undefined, text: { content: text }, create_time: Date.now() });
   const detail = '交付明细已核对。'.repeat(110);
   const directReply = { id: 'direct-group', sender: owner, text: [
     '# 已核对，项目周五交付。', '- **验收时间** 14:30', '- 查看[原表](https://example.test/plan)',
@@ -383,32 +452,34 @@ test('Windows 工作台完整链路', async (t) => {
   assert.match(expectedParts.join('\n'), /• 验收时间 14:30/);
   assert.match(expectedParts.join('\n'), /原表 https:\/\/example.test\/plan/);
   assert.doesNotMatch(expectedParts.join('\n'), /\*\*|\[原表\]/);
-  wecom.receive(owner, { id: 'forged', sender: 'colleague_fixture', text: '接管 ' + groupDraft.id.slice(0, 8) });
-  wecom.receive(owner, { ...directReply, id: 'ambiguous' });
-  wecom.receive(owner, { id: 'list', sender: owner, text: '接管待办' });
-  wecom.receive(owner, { id: 'command-private', sender: owner, text: '接管 ' + privateDraft.id.slice(0, 8) + ' 此条无需回复' });
-  await eventually(() => wecom.sent.some((item) => item.target === owner && item.text.includes('Pi 判断无需回复')), 26000);
-  assert.ok(wecom.sent.some((item) => item.text.includes('核对来信')));
-  assert.equal(wecom.sent.filter((item) => item.target !== owner).length, 0);
-  wecom.receive(owner, { id: 'unrelated', sender: owner, text: '晚上记得买牛奶' });
-  await eventually(() => wecom.sent.some((item) => item.target === owner && item.text.includes('原来信仍在待办里')), 26000);
+  wecomCommand({ id: 'forged', sender: 'colleague_fixture', text: '接管 ' + groupDraft.id.slice(0, 8) });
+  wecomCommand({ id: 'mcp-id-is-not-bot-id', sender: mcpOwner, text: '忽略 ' + groupDraft.id.slice(0, 8) });
+  wecomCommand({ id: 'group-command', sender: owner, text: '忽略 ' + groupDraft.id.slice(0, 8) }, true);
+  wecom.receive(mcpOwner, { id: 'old-self-command', sender: mcpOwner, text: '忽略 ' + groupDraft.id.slice(0, 8) });
+  wecomCommand({ ...directReply, id: 'ambiguous' });
+  wecomCommand({ id: 'list', sender: owner, text: '接管待办' });
+  wecomCommand({ id: 'command-private', sender: owner, text: '接管 ' + privateDraft.id.slice(0, 8) + ' 此条无需回复' });
+  await eventually(() => wecomNotices.some((item) => item.target === owner && item.text.includes('Pi 判断无需回复')), 26000);
+  assert.ok(wecomNotices.some((item) => item.text.includes('核对来信')));
+  assert.equal(wecom.sent.filter((item) => item.target !== mcpOwner).length, 0);
+  wecomCommand({ id: 'unrelated', sender: owner, text: '晚上记得买牛奶' });
+  await eventually(() => wecomNotices.some((item) => item.target === owner && item.text.includes('原来信仍在待办里')), 26000);
   assert.equal((await user<ReplyRecord>('/replies/' + groupDraft.id)).body.review_state, 'ready');
   wecom.rejectNext.set('group_fixture', '【2/');
-  wecom.receive(owner, directReply);
-  wecom.receive(owner, directReply);
-  await eventually(() => wecom.sent.some((item) => item.target === owner && item.text.includes('企微未受理发送')), 30000);
-  assert.deepEqual(wecom.sent.filter((item) => item.target !== owner).map((item) => item.text), expectedParts.slice(0, 1));
-  wecom.rejectFileOnce.add('group_fixture');
-  wecom.receive(owner, { id: 'retry-group', sender: owner, text: '重试 ' + groupDraft.id.slice(0, 8) });
+  wecomCommand(directReply);
+  wecomCommand(directReply);
+  await eventually(() => wecomNotices.some((item) => item.target === owner && item.text.includes('企微未受理发送')), 30000);
+  assert.deepEqual(wecom.sent.filter((item) => item.target !== mcpOwner).map((item) => item.text), expectedParts.slice(0, 1));
+  wecomCommand({ id: 'retry-group', sender: owner, text: '重试 ' + groupDraft.id.slice(0, 8) });
   await eventually(() => wecom.sent.filter((item) => item.target === 'group_fixture').length === expectedParts.length, 30000);
-  await eventually(() => wecom.sent.some((item) => item.target === owner && item.text.includes('853008') && item.text.includes('智能机器人')), 10000);
+  await eventually(() => wecomNotices.some((item) => item.target === owner && item.text.includes('已回复原会话') && item.text.includes('原生附件未发送')), 10000);
   assert.equal(wecom.deliveredFiles.length, 0);
-  wecom.receive(owner, { id: 'retry-file', sender: owner, text: '重试 ' + groupDraft.id.slice(0, 8) });
-  await eventually(() => wecom.deliveredFiles.length === 1, 30000);
-  const finalText = [...expectedParts, '附件 回传成品.docx'].join('\n\n');
-  assert.deepEqual(wecom.sent.filter((item) => item.target !== owner).map((item) => item.text), expectedParts);
-  assert.ok(wecom.sent.some((item) => item.text.includes('接管待办') && item.text.includes(groupDraft.id.slice(0, 8))));
-  assert.equal(wecom.sent.filter((item) => item.text.includes('已开始处理 ' + groupDraft.id.slice(0, 8))).length, 2);
+  assert.equal(wecom.uploaded.length, 0);
+  const finalText = expectedParts.join('\n\n');
+  assert.deepEqual(wecom.sent.filter((item) => item.target !== mcpOwner).map((item) => item.text), expectedParts);
+  assert.ok(wecomNotices.some((item) => item.text.includes('接管待办') && item.text.includes(groupDraft.id.slice(0, 8))));
+  assert.equal(wecomNotices.filter((item) => item.text.includes('已开始处理 ' + groupDraft.id.slice(0, 8))).length, 2);
+  assert.ok(wecom.sent.every((item) => item.target !== mcpOwner));
   assert.equal(wecom.created.length, 1);
   assert.ok(wecom.created[0].content.includes('项目将于周五交付'));
   const sent = await eventually(async () => {
@@ -417,12 +488,12 @@ test('Windows 工作台完整链路', async (t) => {
   });
   assert.equal(sent.reply_text, finalText);
   assert.ok(sent.sent_at);
-  assert.deepEqual(wecom.deliveredFiles.map(({ chat_id, file }) => [chat_id, file.media_id]), [['group_fixture', 'uploaded_fixture_file']]);
-  assert.equal(wecom.uploaded.length, 1);
-  assert.equal(wecom.uploaded[0].file_name, '回传成品.docx');
-  assert.match(new AdmZip(Buffer.from(wecom.uploaded[0].base64_content, 'base64')).readAsText('word/document.xml'), /RPL-821/);
   const sentRun = (await user<{ runs: ChatRun[] }>('/chats/' + sent.chat)).body.runs.find((row) => row.id === sent.id);
   assert.equal(sentRun?.attachments[0].name, '现场核对.docx');
+  const generated = sentRun?.documents.find((item) => item.name === '回传成品.docx');
+  assert.ok(generated);
+  const filePreview = (await user<DocumentPreview>('/documents/' + generated.id + '/preview')).body;
+  assert.ok('text' in filePreview && filePreview.text.includes('RPL-821'));
   assert.equal(sentRun?.tool_log.filter((tool) => tool.name === 'wecom_reply_decision' && tool.state === 'done').length, 1);
   assert.equal((await user<ReplyRecord>('/replies/' + privateDraft.id)).body.review_state, 'commanded');
 
@@ -443,7 +514,7 @@ test('Windows 工作台完整链路', async (t) => {
   assert.ok(!wecom.sent.some((item) => item.text.includes(skip)));
   await eventually(() => held.started);
   const processing = await eventually(() => findReply('pending', hold));
-  wecom.receive('group_fixture', { id: 'parallel-other-chat', sender: 'colleague_fixture', text: parallel, at: [owner] });
+  wecom.receive('group_fixture', { id: 'parallel-other-chat', sender: 'colleague_fixture', text: parallel, at: [mcpOwner] });
   const other = await eventually(async () => {
     const row = await findReply('review', parallel);
     return row?.review_state === 'ready' ? row : undefined;
@@ -470,4 +541,15 @@ test('Windows 工作台完整链路', async (t) => {
   assert.ok(!wecom.sent.some((item) => item.text.includes(hold)));
   assert.equal((await user('/replies/' + nextReply.id + '/cancel', 'POST')).status, 204);
   assert.equal((await user<ReplyRecord>('/replies/' + nextReply.id)).body.review_state, 'canceled');
+  assert.equal((await user('/replies/' + other.id + '/cancel', 'POST')).status, 204);
+  wecomProactiveLimited = true;
+  const limitedPrompt = '请确认这条主动通知限流测试';
+  wecom.receive('colleague_fixture', { id: 'proactive-limited', sender: 'colleague_fixture', text: limitedPrompt });
+  const heldNotice = await eventually(async () => {
+    const reply = await findReply('review', limitedPrompt);
+    return reply?.review_state === 'failed' ? reply : undefined;
+  }, 35000);
+  wecomCommand({ id: 'request-held-notice', sender: owner, text: '接管待办' });
+  await eventually(() => wecomNotices.some((item) => item.text.includes('接管待办 ' + heldNotice.id.slice(0, 8)) && item.text.includes(limitedPrompt)));
+  assert.equal((await user<ReplyRecord>('/replies/' + heldNotice.id)).body.review_state, 'ready');
 });

@@ -1,0 +1,2 @@
+# Preserve the exported bytes recorded in MANIFEST.sha256.
+* -text
