@@ -1,0 +1,52 @@
+{
+  "name": "ai-workbench",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node server/index.ts",
+    "dev": "umi dev",
+    "build": "umi build",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "@ant-design/icons": "6.3.4",
+    "@earendil-works/chord": "1.6.0",
+    "@earendil-works/pi-ai": "1.6.0",
+    "@earendil-works/pi-durable": "1.6.0",
+    "@larksuiteoapi/node-sdk": "1.76.0",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@wecom/aibot-node-sdk": "1.0.7",
+    "@xmldom/xmldom": "^0.9.12",
+    "adm-zip": "^0.5.16",
+    "antd": "6.7.1",
+    "cron-parser": "^5.4.0",
+    "dingtalk-stream": "2.1.6-beta.1",
+    "docx": "^9.16.0",
+    "express": "^5.1.0",
+    "multer": "^2.0.2",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "11.0.0",
+    "umi": "4.7.36",
+    "unified": "11.0.5",
+    "yaml": "^2.8.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.7",
+    "@types/express": "^5.0.0",
+    "@types/mdast": "4.0.4",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "~5.9.3"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "purpose": "合成消息，用于独立移植测试",
+  "profile": {
+    "tenantId": "example-tenant",
+    "profileId": "example-profile",
+    "ownerUserId": "work-user-a",
+    "messageUserId": "employee-a",
+    "generation": "example-generation"
+  },
+  "conversation": {
+    "id": "example-group",
+    "type": "GROUP",
+    "sharedGroup": true
+  },
+  "messages": [
+    {
+      "id": "msg-001",
+      "sender": "employee-c",
+      "senderType": "user",
+      "time": 1000,
+      "position": 1,
+      "text": "请发会议纪要",
+      "mentionedUserIds": []
+    },
+    {
+      "id": "msg-002",
+      "sender": "employee-c",
+      "senderType": "user",
+      "time": 2000,
+      "position": 2,
+      "text": "请发会议纪要",
+      "mentionedUserIds": [
+        "employee-a"
+      ]
+    },
+    {
+      "id": "msg-003",
+      "sender": "employee-c",
+      "senderType": "user",
+      "time": 2000,
+      "position": 3,
+      "text": "请发会议纪要",
+      "mentionedUserIds": [
+        "employee-a"
+      ]
+    },
+    {
+      "id": "msg-004",
+      "sender": "employee-a",
+      "senderType": "user",
+      "time": 3000,
+      "position": 4,
+      "text": "我已经发过纪要。",
+      "mentionedUserIds": []
+    },
+    {
+      "id": "msg-005",
+      "sender": "employee-c",
+      "senderType": "user",
+      "time": 4000,
+      "position": 5,
+      "text": "再补一页结论",
+      "mentionedUserIds": [
+        "employee-a"
+      ]
+    }
+  ],
+  "assertions": {
+    "beforeHumanReply": [
+      "msg-002",
+      "msg-003"
+    ],
+    "afterHumanReply": [
+      "msg-005"
+    ],
+    "duplicateWindowDoesNotReenqueue": true
+  }
+}
