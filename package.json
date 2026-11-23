@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "node server/index.ts",
+    "start:local": "npm run build && npm start",
     "dev": "umi dev",
     "build": "umi build",
     "typecheck": "tsc --noEmit",

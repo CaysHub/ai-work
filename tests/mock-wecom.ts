@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 
-type FixtureMessage = { msgid: string; userid: string; send_time: string; msg_type: string; mentioned_list: string[];
+type FixtureMessage = { msgid: string; userid: string; send_time: string; msg_type: string; mentioned_list?: string[];
   text?: { content: string }; link?: { title: string; url: string }; file?: { media_id: string; file_name: string } };
 type MessageInput = { id: string; sender: string; text: string; at?: string[]; type?: string; time?: number };
 export function mockWecom(server: Server) {
@@ -36,7 +36,8 @@ export function mockWecom(server: Server) {
     }
     if (name === 'chat_groups_list') {
       if (!args.cursor) return result({ chats: [], has_more: true, next_cursor: 'page-2' });
-      return result({ chats: [{ chat_id: 'group_fixture', chat_name: '项目群' }], has_more: false });
+      return result({ chats: [{ chat_id: 'group_fixture', chat_name: '项目群' },
+        { chat_id: 'auto_group_fixture', chat_name: '自动发现群' }], has_more: false });
     }
     if (name === 'chat_messages_list') return result({ has_more: false,
       messages: (incoming.get(args.chat_id) ?? []).filter((row) => row.send_time >= args.begin_time && row.send_time <= args.end_time) });
@@ -113,7 +114,7 @@ export function mockWecom(server: Server) {
         msg_type: 'file', mentioned_list: [], file: { media_id: id, file_name: name } });
       incoming.set(target, messages);
     },
-    receive(target: string, { id, sender, text, at = [], type = 'text', time = Date.now() }: MessageInput) {
+    receive(target: string, { id, sender, text, at, type = 'text', time = Date.now() }: MessageInput) {
       const history = incoming.get(target) ?? [];
       history.push({ msgid: id, userid: sender, send_time: clock.format(time), msg_type: type, mentioned_list: at,
         ...(type === 'text' ? { text: { content: text } } : { link: { title: '验收文档', url: text } }) });

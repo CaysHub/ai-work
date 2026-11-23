@@ -101,6 +101,7 @@ export interface BotSettings {
   skills: string[];
   employeeId: string;
   targets: { id: string; group: boolean }[];
+  groupMentionName?: string;
   discoverGroups?: boolean;
   reviewConversation?: string;
   reviewBotId?: string;

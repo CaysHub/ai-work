@@ -272,7 +272,7 @@ test('Windows 工作台完整链路', async (t) => {
   assert.equal((await user('/bots', 'POST', { name: '飞书指挥机器人', platform: 'feishu', mode: 'bot',
     enabled: true, secrets: { appId: 'fixture-app', appSecret: 'fixture-app-secret' } })).status, 200);
   const profile = { name: '飞书本人接管', platform: 'feishu', mode: 'personal',
-    settings: { employeeId: 'ou_fixture', targets: [{ id: 'oc_fixture', group: true }] },
+    settings: { employeeId: 'ou_fixture', groupMentionName: '飞书本人', targets: [{ id: 'oc_fixture', group: true }] },
     secrets: { appId: 'fixture-app', appSecret: 'fixture-app-secret' } };
   const bot = await user<Bot>('/bots', 'POST', profile);
   assert.equal(bot.status, 200);
@@ -286,6 +286,7 @@ test('Windows 工作台完整链路', async (t) => {
   const configurationPath = '/bots/' + bot.body.id + '/configuration';
   const editable = (await user<BotConfiguration>(configurationPath)).body;
   assert.deepEqual(editable.secrets, { ...profile.secrets, userToken: 'employee-fixture' });
+  assert.equal(editable.settings.groupMentionName, profile.settings.groupMentionName);
   assert.equal((await request(configurationPath, { cookie: member })).status, 404);
   const unchangedBot = (await user<Bot>('/bots/' + bot.body.id, 'PUT', { ...profile, secrets: editable.secrets })).body;
   assert.equal(unchangedBot.version, editable.version);
@@ -297,7 +298,9 @@ test('Windows 工作台完整链路', async (t) => {
   incoming.push({ ...inbound, message_id: 'om_unmentioned' });
   const mentioned = { ...inbound, message_id: 'om_request', mentions: [{ id: 'ou_fixture' }] };
   incoming.push(mentioned, mentioned);
-  incoming.push({ ...mentioned, message_id: 'om_other_request', body: { content: JSON.stringify({ text: '其他来信也请给草稿' }) } });
+  const feishuTextMention = '其他来信也请给草稿 @飞书本人';
+  const fallback = { ...inbound, message_id: 'om_other_request', body: { content: JSON.stringify({ text: feishuTextMention }) } };
+  incoming.push(fallback, { ...fallback, message_id: 'om_other_member', mentions: [{ id: 'ou_colleague' }] });
   const waitingFeishu = await eventually(async () => {
     const rows = (await user<{ rows: ReplyRecord[] }>('/replies?state=review')).body.rows;
     return rows.length === 2 && rows.every((row) => row.review_state === 'ready') && rows;
@@ -332,9 +335,9 @@ test('Windows 工作台完整链路', async (t) => {
   assert.equal(JSON.parse(delivered[0].content).text, '请查看验收安排。\n\nhttps://fixture.feishu.cn/docx/mock_doc');
   assert.equal(delivered[0].uuid, sentFeishu?.id);
   assert.ok(feishuRuns.find((row) => row.id === sentFeishu?.id)?.tool_log.some((tool) => tool.name === 'wecom_reply_decision' && tool.state === 'done'));
-  assert.equal(feishuRuns.find((row) => row.prompt === '其他来信也请给草稿')?.reply, 'awaiting_review');
+  assert.equal(feishuRuns.find((row) => row.prompt === feishuTextMention)?.reply, 'awaiting_review');
   await eventually(() => notices.some((notice) => notice.text.includes('已回复原会话')));
-  const otherFeishu = waitingFeishu.find((row) => row.prompt === '其他来信也请给草稿');
+  const otherFeishu = waitingFeishu.find((row) => row.prompt === feishuTextMention);
   const otherNotice = notices.find((notice) => notice.text.includes('其他来信也请给草稿'));
   assert.ok(otherFeishu && otherNotice);
   feishuCommand('om_owner_approve_exact', '按这个发送。', otherNotice.id);
@@ -349,8 +352,9 @@ test('Windows 工作台完整链路', async (t) => {
     settings: { targets: [{ id: 'ding-staff', group: false }] }, secrets: { appId: 'fixture-ding-app', appSecret: 'fixture-ding-app-secret' } });
   assert.equal(dingRobot.status, 200);
   const ding = await user<Bot>('/bots', 'POST', { name: '钉钉本人接管', platform: 'dingtalk', mode: 'personal', enabled: true,
-    settings: { employeeId: 'ding-owner', reviewBotId: dingRobot.body.id, reviewUserId: 'ding-staff',
-      targets: [{ id: 'ding-colleague-chat', group: false }] }, secrets: { userToken: 'employee-ding-token' } });
+    settings: { employeeId: 'ding-owner', reviewBotId: dingRobot.body.id, reviewUserId: 'ding-staff', groupMentionName: '钉钉本人',
+      targets: [{ id: 'ding-colleague-chat', group: false }, { id: 'ding-group-chat', group: true }] },
+    secrets: { userToken: 'employee-ding-token' } });
   assert.equal(ding.status, 200);
   await sleep(40);
   dingIncoming.push({ openConversationId: 'ding-colleague-chat', openMessageId: 'ding-inbound', createTime: Date.now(), sendType: 'user',
@@ -364,14 +368,21 @@ test('Windows 工作台完整链路', async (t) => {
   botEvents.dingtalk.push({ ...dingCommand, msgId: 'ding-untrusted', senderCorpId: 'other-org' }, dingCommand, dingCommand);
   await eventually(() => dingNotices.some((item) => item.target === 'ding-staff' && item.text.includes('已回复原会话')), 15000);
   assert.deepEqual(dingDelivered, [{ token: 'employee-ding-token', target: 'ding-colleague-chat', text: dingDraft.answer }]);
+  const dingGroupText = '确认群里的验收时间。＠钉钉本人';
+  dingIncoming.push({ openConversationId: 'ding-group-chat', openMessageId: 'ding-group-inbound', createTime: Date.now(), sendType: 'user',
+    senderOpenDingTalkId: 'ding-colleague', content: dingGroupText });
+  const dingGroupDraft = await eventually(async () => (await user<ReplyPage>('/replies?botId=' + ding.body.id)).body.rows
+    .find((row) => row.review_state === 'ready' && row.prompt === dingGroupText), 28000);
+  assert.equal(dingGroupDraft.target, 'ding-group-chat');
+  assert.equal(dingDelivered.length, 1);
   const wecomRobot = await user<Bot>('/bots', 'POST', { name: '企微指挥机器人', platform: 'wecom', mode: 'bot',
     enabled: true, settings: { targets: [{ id: 'wecom_staff_fixture', group: false }] },
     secrets: { botId: 'wecom-application', botSecret: 'robot-fixture' } });
   assert.equal(wecomRobot.status, 200);
   const wecomBot = await user<Bot>('/bots', 'POST', {
     name: '企微接管验收', platform: 'wecom', mode: 'personal', enabled: true,
-    settings: { employeeId: 'employee_fixture', reviewBotId: wecomRobot.body.id, reviewUserId: 'wecom_staff_fixture',
-      targets: [{ id: 'colleague_fixture', group: false }] },
+    settings: { employeeId: 'employee_fixture', reviewBotId: wecomRobot.body.id, reviewUserId: 'wecom_staff_fixture', groupMentionName: 'TigerLand',
+      targets: [{ id: 'colleague_fixture', group: false }, { id: 'group_fixture', group: true }] },
     secrets: { messageMcp: 'https://qyapi.weixin.qq.com/mcp/v2/bot/msg?apikey=fixture',
       documentMcp: 'https://qyapi.weixin.qq.com/mcp/v2/bot/doc?apikey=fixture' },
   });
@@ -385,15 +396,17 @@ test('Windows 工作台完整链路', async (t) => {
   assert.equal(JSON.stringify((await user('/bots')).body).includes('apikey=fixture'), false);
   await sleep(1100);
   wecom.receive('group_fixture', { id: 'ignored', sender: 'colleague_fixture', text: '群里未点名消息' });
+  wecom.receive('group_fixture', { id: 'partial-name', sender: 'colleague_fixture', text: '请 @TigerLand-2 核对验收安排' });
+  wecom.receive('auto_group_fixture', { id: 'auto-ignored', sender: 'colleague_fixture', text: '请 @TigerLand 核对验收安排' });
   const localAttachment = new AdmZip();
   localAttachment.addFile('word/document.xml', Buffer.from('<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>RPL-821 现场验收记录</w:t></w:r></w:p></w:body></w:document>'));
   wecom.receiveFile('group_fixture', 'colleague_fixture', 'local_file', '现场核对.docx', localAttachment.toBuffer());
   wecom.receive('group_fixture', { id: 'document', sender: 'colleague_fixture',
-    text: '请根据本地 Word 和 https://doc.weixin.qq.com/doc/w_fixture_doc 整理交付报告，回传 Word 附件和企微在线文档链接', at: ['employee_fixture'] });
+    text: '请根据本地 Word 和 https://doc.weixin.qq.com/doc/w_fixture_doc 整理交付报告，回传 Word 附件和企微在线文档链接。@TigerLand' });
   wecom.receive('colleague_fixture', { id: 'private', sender: 'colleague_fixture',
     text: '正式验收改到几点？帮我整理成云文档' });
   const drafts = await eventually(async () => {
-    const response = await user<{ rows: ReplyRecord[] }>('/replies?state=review');
+    const response = await user<{ rows: ReplyRecord[] }>('/replies?state=review&botId=' + wecomBot.body.id);
     if (response.status !== 200) throw new Error(JSON.stringify(response));
     return response.body.rows.length === 2 && response.body.rows.every((row) => row.review_state === 'ready') && response.body.rows;
   }, 35000);

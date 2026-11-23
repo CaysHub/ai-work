@@ -7,7 +7,7 @@ import type { LiveBot, Secrets } from './types.ts';
 
 type RequestOptions = { method?: string; body?: object; form?: Record<string, string>; token?: string; headers?: Record<string, string> };
 type ToolResult = { [key: string]: unknown; isError?: unknown; structuredContent?: unknown; content?: unknown };
-export type HistoryMessage = { id: string; sender?: string; time: number; text: string; mentions: string[]; system?: boolean; replyTo?: string;
+export type HistoryMessage = { id: string; sender?: string; time: number; text: string; mentions: string[]; textMessage?: boolean; system?: boolean; replyTo?: string;
   file?: { mediaId: string; name?: string } };
 type RawMessage = Omit<HistoryMessage, 'id' | 'mentions'> & { id?: string; mentions?: string[] };
 type PageState = { has_more?: boolean; errcode?: number; cursor?: string; next_cursor?: string };
@@ -24,7 +24,7 @@ type WecomMessage = {
 };
 type DingMessage = {
   createTime?: number; sendType?: string; messageAiSendFlag?: boolean; openMessageId?: string; openConversationId?: string;
-  senderOpenDingTalkId?: string; atOpenDingTalkIds?: string[]; content?: unknown;
+  senderOpenDingTalkId?: string; atOpenDingTalkIds?: string[]; msgType?: string; content?: unknown;
 };
 type DingReceipt = { openMessageId?: string; openConversationId?: string; openTaskId?: string; sendStatus?: string };
 
@@ -179,6 +179,7 @@ export async function history(bot: LiveBot, target: string, start: number, end: 
       if (typeof data.has_more !== 'boolean') throw new Error('飞书响应缺少分页状态');
       messages = data.items?.map((row) => ({ id: row.message_id, sender: row.sender?.id, time: epoch(row.create_time),
         text: row.msg_type === 'text' ? textValue(row.body?.content) : '',
+        textMessage: row.msg_type === 'text',
         replyTo: row.parent_id || row.root_id,
         mentions: row.mentions?.flatMap(({ id }) => typeof id === 'string' ? [id] : id?.open_id ? [id.open_id] : []),
         system: row.sender?.sender_type !== 'user' || row.deleted }));
@@ -192,7 +193,8 @@ export async function history(bot: LiveBot, target: string, start: number, end: 
       messages = rows?.map((row) => ({ id: row.msgid ?? row.message_id, sender: row.userid, time: epoch(row.send_time),
         text: row.msg_type === 'text' ? textValue(row.text) : row.msg_type === 'link' ?
           [row.link?.title, row.link?.url].filter(Boolean).join('\n') : '',
-        mentions: row.mentioned_list ?? row.mentioned_user_ids ?? row.text?.mentioned_list,
+        textMessage: row.msg_type === 'text',
+        mentions: [row.mentioned_list, row.mentioned_user_ids, row.text?.mentioned_list].find((ids) => Array.isArray(ids) && ids.length > 0),
         file: row.msg_type === 'file' && typeof row.file?.media_id === 'string' && row.file.media_id.length > 0
           ? { mediaId: row.file.media_id, name: row.file.file_name ?? row.file.filename } : undefined }));
       next = data.has_more ? data.next_cursor || data.cursor || 'invalid' : null;
@@ -207,7 +209,7 @@ export async function history(bot: LiveBot, target: string, start: number, end: 
         const system = row.sendType !== 'user' || Boolean(row.messageAiSendFlag);
         if (!system && (!row.openMessageId || target !== row.openConversationId)) throw new Error('钉钉消息身份不完整');
         return { id: row.openMessageId, sender: row.senderOpenDingTalkId, time,
-          text: textValue(row.content), mentions: row.atOpenDingTalkIds, system };
+          text: textValue(row.content), textMessage: !row.msgType || row.msgType === 'text', mentions: row.atOpenDingTalkIds, system };
       });
       const dingRows = messages;
       if (dingRows?.some((row, index) => index > 0 && row.time > dingRows[index - 1].time)) throw new Error('钉钉消息顺序无效');

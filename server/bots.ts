@@ -26,6 +26,8 @@ const fields = z.object({
   settings: z.object({
     skills: skillsField, employeeId: z.string().trim().max(200).default(''),
     targets: z.array(z.object({ id: z.string().trim().min(1).max(250), group: z.boolean().default(false) })).max(500).default([]),
+    groupMentionName: z.string().trim().min(1).max(64)
+      .refine((name) => !/[@＠\r\n]/.test(name) && !/^(?:所有人|全体成员|全体|all|everyone)$/i.test(name), '群内 @ 名称请填写本人的显示名称').optional(),
     discoverGroups: z.boolean().default(true),
     reviewConversation: z.string().trim().max(250).optional(),
     reviewBotId: z.string().uuid().optional(),
@@ -33,6 +35,10 @@ const fields = z.object({
   }).default({ skills: [], employeeId: '', targets: [], discoverGroups: true }),
   secrets: z.partialRecord(z.enum(botCredentialKeys), z.string().trim().max(4000)).default({}),
 });
+function groupMentionPattern(name: string) {
+  const literal = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`(?<![\\w@＠<.])[@＠]${literal}(?=$|[\\s\\u200b,，、。；;！？!?：:）)】]|\\.(?=\\s|$))`, 'u');
+}
 const hydrate = (bot: StoredTables['bots']): LiveBot => ({ ...bot, settings: parse<BotSettings>(bot.settings), secrets: unseal<Secrets>(bot.secrets) });
 function show(bot: StoredTables['bots']): Bot {
   const { secrets, ...visible } = hydrate(bot);
@@ -89,6 +95,7 @@ export function installBots(app: Express) {
     const owner = requireUser(req).id;
     const old = req.params.id ? hydrate(owned('bots', owner, req.params.id)) : null;
     const input = fields.parse(req.body);
+    if (input.mode !== 'personal') delete input.settings.groupMentionName;
     const id = old?.id ?? randomUUID();
     if (input.mode === 'personal' && old?.platform === input.platform && old.settings.reviewConversation) {
       input.settings.reviewConversation = old.settings.reviewConversation;
@@ -372,6 +379,8 @@ export function openBots() {
   async function poll(bot: LiveBot) {
     bot.secrets = await freshToken(bot);
     await verifyEmployee(bot.platform, bot.secrets, bot.settings.employeeId);
+    const { employeeId, groupMentionName } = bot.settings;
+    const mentionPattern = groupMentionName ? groupMentionPattern(groupMentionName) : undefined;
     type Target = BotSettings['targets'][number] & { name?: string | null; first_from?: number };
     const targets = new Map<string, Target>(bot.settings.targets.map((target) => [target.id, target]));
     let failures = 0;
@@ -406,14 +415,20 @@ export function openBots() {
       if (end - start > 6 * 86400000) throw new Error('接管积压超过六天，请重新启用连接');
       const items = await history(bot, target.id, start, end);
       if (closed || !current(bot)) return;
+      const textMention = mentionPattern && target.group && bot.settings.targets.some(({ id, group }) => group && id === target.id)
+        ? mentionPattern : undefined;
       if (bot.platform === 'wecom') {
         for (const item of items) {
-          if (item.file && !item.system && item.sender !== bot.settings.employeeId) rememberWecomFile(bot, target.id, item);
+          if (item.file && !item.system && item.sender !== employeeId) rememberWecomFile(bot, target.id, item);
         }
       }
       for (const item of items) {
-        if (item.system || item.sender === bot.settings.employeeId || (target.group && !item.mentions?.includes(bot.settings.employeeId))) continue;
-        if (items.some((later) => !later.system && later.sender === bot.settings.employeeId && later.time >= item.time)) continue;
+        if (item.system || item.sender === employeeId) continue;
+        if (target.group) {
+          const addressed = item.mentions.length ? item.mentions.includes(employeeId) : item.textMessage && textMention?.test(item.text);
+          if (!addressed) continue;
+        }
+        if (items.some((later) => !later.system && later.sender === employeeId && later.time >= item.time)) continue;
         accept(bot, target.id, item, { channel: 'personal', sourceTime: item.time, sourceId: item.id }, target.name ?? target.id);
       }
       run(`INSERT INTO cursors VALUES (?,?,?,?) ON CONFLICT(bot,version,target) DO UPDATE SET checkpoint=excluded.checkpoint`,

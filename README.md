@@ -2,6 +2,14 @@
 
 工作台源码使用 TypeScript 和 TSX。前端使用 UmiJS 4.7.36、React 19 和 Ant Design 6.7.1，后端由 Node.js 24 直接运行 TypeScript。pi-durable 执行对话和工具调用，SQLite 保存应用状态，服务器磁盘保存 Skill 和产物。
 
+## macOS 与 WebStorm 启动
+
+在 WebStorm 的 JavaScript Runtime 设置中选择 Node.js 24。使用 nvm 时，可在项目根目录执行 `nvm install`，再选择 `nvm which 24` 返回的 Node 可执行文件。
+
+首次启动时，在项目根目录执行 `npm ci`。如尚未创建 `.env`，复制 `.env.example` 为 `.env` 并填写 `MODEL_API_KEY`。
+
+新建 npm 运行配置，选择项目根目录的 `package.json`，命令选 `run`，脚本选 `start:local`。它会先构建前端，再启动工作台。访问默认的 [本机工作台](http://127.0.0.1:3400)。已有实例占用端口时，先在 WebStorm 停止该实例。
+
 ## Windows 11 启动
 
 使用 Node.js 24 或更高版本。PowerShell 中运行以下命令，或者双击项目根目录的 `start-win11.cmd`。
@@ -35,9 +43,11 @@ npm start
 
 在「机器人接入」新建配置，为连接选择 Skill，再启用。应用机器人可配置会话白名单。本人接管支持登记目标会话，私聊以 `p2p:` 开头，群聊以 `group:` 开头，每行一个 ID。群聊只处理明确 @ 本人的来信。同一会话顺序处理，入站去重。员工已回复或发送前无法确认消息历史时跳过回传。左侧「回复记录」可以按来信、回复正文、会话名称和状态查询，包括归档会话。
 
+企业微信、飞书和钉钉的本人接管均可填写「群内 @ 名称」，使用群里显示的本人名称，例如 `TigerLand`。在手动登记的群里，如果平台只返回正文，工作台会识别完整的 `@TigerLand` 并生成待办。平台返回被 @ 的成员 ID 时，工作台按 ID 判断。回复由本人在机器人私聊里确认。
+
 | 平台 | 应用机器人 | 本人会话接管 | 在线文档 |
 | --- | --- | --- | --- |
-| 企业微信 | 智能机器人 Bot ID 与 Secret，走官方 WebSocket。 | 填写官方消息 MCP 授权 URL 及本人 userid。默认发现活跃群聊，私聊需批量填对方 userid。 | 填官方文档 MCP 授权 URL。Pi 按问题关键词检索，读取相关文档或在线表格范围。测试资料中的 XLSX 需导入为企微在线表格。 |
+| 企业微信 | 智能机器人 Bot ID 与 Secret，走官方 WebSocket。 | 填写官方消息 MCP 授权 URL（路径 `/mcp/v2/bot/msg`）及本人 userid。默认发现活跃群聊，私聊需批量填对方 userid。 | 使用在线文档时填写官方文档 MCP 授权 URL（路径 `/mcp/v2/bot/doc`）。Pi 按问题关键词检索，读取相关文档或在线表格范围。测试资料中的 XLSX 需导入为企微在线表格。 |
 | 飞书 | 填写自建应用 App ID 和 App Secret，启用机器人与 `im.message.receive_v1` 长连接事件。 | 填本人 open_id 和目标 chat_id。先保存停用配置，再用「本人授权」绑定，或填已授权的员工访问令牌。飞书后台 OAuth 回调填写 `<WORKBENCH_PUBLIC_BASE_URL>/integrations/feishu/callback`，配置消息历史、本人发送与 offline_access 权限。 | 应用需要文档、Markdown 转块及云空间元数据权限，按需配置有权限的文件夹 Token。 |
 | 钉钉 | 填写应用 App ID 与 App Secret，并启用机器人 Stream 消息。白名单私聊填写员工 staff ID，群聊填机器人的 openConversationId。 | 组织在 CLI 设置的 Agent 管理中打开渠道。先保存本人配置与开放钉钉号，再用「本人授权」发起设备绑定并完成确认。聊天目标填 openConversationId。 | 安装官方 DWS CLI，将 `DWS_EXECUTABLE` 设为可执行文件路径。独立的文档授权可存到 `DWS_CONFIG_DIR`，在 `DWS_PROFILES` 登记 `{ "name": "profile-name", "owner": "工作台用户 UUID" }`，并在本人接管配置里填写同名 profile。云文档优先使用已登记的 profile，消息使用本人接管授权。 |
 
@@ -51,6 +61,6 @@ IM 接管会从来信和会话上下文提取关键词，查证项目事实后�
 
 ## 验收
 
-门店调拨项目的进度 Excel、Word 文档、台词稿、附件样本及三平台复测步骤见 [验收样本](tests/fixtures/im-acceptance/README.md)。
+门店调拨案例的测试资料、可复制问句、参考答案和三平台在线文档回传步骤见 [IM 验收样本](tests/fixtures/im-acceptance/README.md)。
 
 `npm run typecheck` 运行 TypeScript 严格检查。`npm test` 使用独立的 `.env`、临时 SQLite 和模拟接口，覆盖账号权限、Skill、模型工具调用、Cron、重启后继续对话，以及飞书回传和企微本人确认后回复。真实 DeepSeek 及三平台组织凭据须在目标环境联调。

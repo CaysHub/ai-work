@@ -117,7 +117,7 @@ const platforms: { value: Platform; label: string; short: string; note: string }
   { value: 'dingtalk', label: '钉钉', short: '钉', note: 'Stream 机器人、本人会话与 DWS 文档' },
 ];
 type BotForm = { name: string; platform: Platform; mode: BotMode; enabled: boolean; secrets?: Partial<Record<Platform, BotCredentials>>;
-  targets?: string; employeeId?: string; skills?: string[]; discoverGroups?: boolean; reviewBotId?: string; reviewUserId?: string };
+  targets?: string; employeeId?: string; groupMentionName?: string; skills?: string[]; discoverGroups?: boolean; reviewBotId?: string; reviewUserId?: string };
 type BotDraft = Partial<BotConfiguration>;
 const credentialLabels: Record<BotCredentialKey, string> = {
   appId: 'App ID', appSecret: 'App Secret', botId: 'Bot ID', botSecret: 'Bot Secret',
@@ -154,6 +154,7 @@ function BotEditor({ row, bots, options, close, saved }: { row: BotDraft; bots: 
       await api('/bots' + (row.id ? '/' + row.id : ''), row.id ? 'PUT' : 'POST', {
         name: values.name, platform: values.platform, mode: values.mode, enabled: values.enabled, secrets,
         settings: { targets, employeeId: values.employeeId, skills: values.skills, discoverGroups: values.discoverGroups,
+          groupMentionName: values.mode === 'personal' ? values.groupMentionName?.trim() || undefined : undefined,
           reviewBotId: values.mode === 'personal' ? values.reviewBotId : undefined,
           reviewUserId: values.mode === 'personal' ? values.reviewUserId?.trim() || undefined : undefined },
       });
@@ -167,7 +168,7 @@ function BotEditor({ row, bots, options, close, saved }: { row: BotDraft; bots: 
     confirmLoading={saving} width={760}>
     <Form form={form} layout="vertical" onFinish={save} requiredMark={false} initialValues={{
       name: row.name, platform: row.platform ?? 'wecom', mode: row.mode ?? 'bot', enabled: !!row.enabled,
-      employeeId: row.settings?.employeeId, skills: row.settings?.skills,
+      employeeId: row.settings?.employeeId, groupMentionName: row.settings?.groupMentionName, skills: row.settings?.skills,
       reviewBotId: row.settings?.reviewBotId, reviewUserId: row.settings?.reviewUserId,
       discoverGroups: row.settings?.discoverGroups ?? true,
       targets: row.settings?.targets.map((target) => (target.group ? 'group:' : 'p2p:') + target.id).join('\n'),
@@ -199,10 +200,15 @@ function BotEditor({ row, bots, options, close, saved }: { row: BotDraft; bots: 
           '每行一个会话 ID，个人会话用 p2p:，群会话用 group:。本人接管仅响应明确 @ 本人的群消息。'}>
         <PreviewTextArea rows={2} />
       </Form.Item>
+      {personal && <Form.Item name="groupMentionName" label="群内 @ 名称（可选）"
+        extra="填群里显示的本人名称，例如 TigerLand。手动登记的群缺少 @ 成员 ID 时，按正文中的 @ 名称识别。"
+        rules={[{ max: 64 }]}><PreviewInput placeholder="TigerLand" /></Form.Item>}
       <div className="form-grid">{configFields.map((key) => {
         const isMcpUrl = key === 'messageMcp' || key === 'documentMcp';
+        const mcpHelp = key === 'messageMcp' ? '填写企业微信消息 MCP 授权链接，路径为 /mcp/v2/bot/msg。' :
+          key === 'documentMcp' ? '可选。使用在线文档时，填写企业微信文档 MCP 授权链接，路径为 /mcp/v2/bot/doc。' : undefined;
         return <Form.Item key={platform + key} name={['secrets', platform, key]} label={credentialLabels[key]}
-          className={isMcpUrl ? 'mcp-url-field' : undefined}>
+          className={isMcpUrl ? 'mcp-url-field' : undefined} extra={mcpHelp}>
           <PreviewTextArea rows={isMcpUrl ? 3 : 1} autoSize={isMcpUrl ? false : { minRows: 1, maxRows: 4 }}
             autoComplete="off" spellCheck={false} placeholder="未配置" />
         </Form.Item>;
