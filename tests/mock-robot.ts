@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events';
-import { config } from '../server/config.ts';
+import { config } from '../server/config/env.ts';
 
 const origin = new URL(config.model.baseUrl).origin;
 type Event = Record<string, unknown>;

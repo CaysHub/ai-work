@@ -14,7 +14,7 @@ import { DatabaseSync } from 'node:sqlite';
 import AdmZip from 'adm-zip';
 import { mockModel } from './mock-model.ts';
 import { mockWecom } from './mock-wecom.ts';
-import { wecomPlainText, splitWecomReply } from '../server/wecom-text.ts';
+import { wecomPlainText, splitWecomReply } from '../server/replies/wecom-text.ts';
 
 async function eventually<T>(check: () => T | false | undefined | Promise<T | false | undefined>, wait = 12000): Promise<T> {
   const deadline = Date.now() + wait;

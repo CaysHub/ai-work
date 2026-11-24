@@ -1,0 +1,13 @@
+.compact-table { min-width: 0; }
+.compact-table table { width: 100%; table-layout: fixed; }
+.table-cell-text { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.compact-table .ant-table-cell { padding-inline: clamp(4px, 1vw, 12px); }
+.compact-table .ant-btn-link { max-width: 100%; padding-inline: 4px; }
+.compact-table .ant-space-item { min-width: 0; }
+.compact-table .table-text-button { display: inline-flex; min-width: 0; justify-content: flex-start; vertical-align: middle; }
+.compact-table .table-text-button .ant-btn-icon { flex: none; }
+.compact-table .ant-tag { max-width: 100%; margin-inline-end: 0; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 650px) {
+  .compact-table .ant-btn-link { height: auto; white-space: normal; }
+  .compact-table .ant-btn-link .ant-btn-icon { display: none; }
+}

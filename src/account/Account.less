@@ -1,0 +1,18 @@
+.login-layout { min-height: 100dvh; display: grid; grid-template-columns: 1fr 1fr; }
+.login-brand { background: #15352d; color: #e8f7df; padding: clamp(24px, 6vw, 82px); display: flex; flex-direction: column; justify-content: space-between; gap: 55px; overflow: hidden; }
+.login-brand h1 { font-size: clamp(29px, 5vw, 65px); letter-spacing: -.04em; margin: 0; }
+.login-brand p { color: #bdd4be; line-height: 1.6; }
+.login-orbit { display: flex; gap: 14px; margin-top: 30px; }
+.login-orbit i { width: 8px; height: 8px; border-radius: 50%; background: #a8d999; }
+.login-orbit i:nth-child(2) { opacity: .65; }
+.login-orbit i:nth-child(3) { opacity: .4; }
+.login-main { display: grid; place-items: center; padding: 26px; }
+.login-card { background: white; padding: 28px; border: 1px solid #e0e9dd; border-radius: 17px; width: min(100%, 420px); box-shadow: 0 15px 45px #183b2a0b; }
+.login-card h2 { margin: 0; font-size: 26px; }
+.login-card p { color: #5e7265; margin: 7px 0 21px; }
+
+@media (max-width: 650px) {
+  .login-layout { grid-template-columns: 1fr; }
+  .login-brand { gap: 18px; }
+  .login-orbit { display: none; }
+}

@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
-import { history, wecomEndpoint, wecomGroups } from '../server/platform.ts';
+import { history, wecomGroups } from '../server/platform/messages.ts';
+import { wecomEndpoint } from '../server/platform/mcp.ts';
 
 const groupName = process.argv[2]?.trim();
 const ownMarker = '接管验证-本人';

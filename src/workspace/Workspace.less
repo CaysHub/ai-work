@@ -1,0 +1,57 @@
+.layout { display: grid; grid-template-columns: 252px minmax(0, 1fr); height: 100dvh; overflow: hidden; }
+.sidebar { background: #15352d; color: #e6f2e9; display: flex; flex-direction: column; min-height: 0; padding: 24px 16px 14px; }
+.brand { display: flex; align-items: center; gap: 12px; padding: 0 7px; color: #fff; }
+.brand-mark { background: #cbedbd; color: #1d4938; width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; font-size: 20px; flex: none; }
+.brand strong { display: block; font-size: 18px; letter-spacing: .4px; }
+.brand small { color: #b2c9ba; font-size: 11px; display: block; margin-top: 4px; letter-spacing: 1px; }
+.new-chat { border: 0; border-radius: 9px; background: #d4edc6; color: #173b2d; padding: 11px 13px; display: flex; text-align: left; align-items: center; gap: 10px; margin: 30px 0 24px; font-weight: 650; cursor: pointer; }
+.new-chat:hover { background: #edf8e5; }
+.new-end { margin-left: auto; opacity: .7; }
+.section-label,.history-head { font-size: 11px; letter-spacing: .08em; color: #adcaac; padding: 0 8px; margin-bottom: 9px; }
+.nav-item,.history-row { background: none; border: none; width: 100%; text-align: left; display: flex; align-items: center; gap: 10px; color: #deece0; cursor: pointer; padding: 10px 9px; border-radius: 8px; font-size: 13px; }
+.nav-item { margin: 3px 0; }
+.nav-item:hover,.history-row:hover { background: #22483d; }
+.nav-item.active,.history-row.selected { color: #e6f7d9; background: #2b5044; font-weight: 650; }
+.recents { border-top: 1px solid #365248; margin-top: 23px; padding-top: 17px; display: flex; flex-direction: column; min-height: 0; }
+.history-head { display: flex; align-items: center; justify-content: space-between; }
+.history-head button { border: 0; background: transparent; color: #c2d6c4; cursor: pointer; padding: 1px 4px; }
+.recents .ant-input-affix-wrapper { background: #214137; border-color: #38594d; color: #ceddcf; box-shadow: none; }
+.recents .ant-input { color: #e8f2e8; }
+.recents .ant-input::placeholder { color: #a9bdb1; }
+.history-rows { overflow: auto; margin-top: 8px; scrollbar-width: thin; }
+.history-row > .table-cell-text { flex: 1; }
+.history-empty { display: block; color: #acd0bb; padding: 10px 8px; font-size: 12px; }
+.profile { border-top: 1px solid #365248; margin-top: auto; padding: 15px 2px 1px; display: flex; align-items: center; gap: 9px; }
+.profile .ant-avatar { background: #b8dbac; color: #234536; flex: none; }
+.profile div { flex: 1; min-width: 0; }
+.profile b,.profile small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.profile b { font-size: 13px; }
+.profile small { margin-top: 4px; font-size: 11px; color: #abcdba; }
+.profile .ant-btn { color: #d9ebde; }
+.main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.topbar { height: 63px; flex: none; display: flex; align-items: center; gap: 10px; justify-content: space-between; padding: 0 30px; border-bottom: 1px solid #e0e8df; background: #fbfcfa; }
+.breadcrumb { color: #617369; font-size: 13px; white-space: nowrap; }
+.breadcrumb span { color: #abb8af; margin: 0 9px; }
+.breadcrumb b { color: #244234; }
+.header-right { display: flex; align-items: center; gap: 8px; }
+.model-pill { font-size: 12px; padding: 7px 10px; background: #eff5ec; border: 1px solid #dbe8d8; border-radius: 20px; color: #365444; white-space: nowrap; }
+.model-pill i { display: inline-block; height: 7px; width: 7px; margin-right: 5px; border-radius: 100%; background: #b38b48; }
+.model-pill .ready { background: #4e936d; }
+.mobile-menu,.overlay { display: none; }
+
+@media (max-width: 850px) {
+  .layout { grid-template-columns: 204px minmax(0,1fr); }
+  .topbar { padding-inline: 20px; }
+}
+
+@media (max-width: 650px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { position: fixed; inset: 0 auto 0 0; width: 230px; z-index: 12; transform: translateX(-101%); visibility: hidden; transition: transform .2s, visibility .2s; }
+  .sidebar-open { transform: none; visibility: visible; }
+  .overlay { display: block; position: fixed; inset: 0; z-index: 11; background: #163b2a66; border: 0; }
+  body:has(.sidebar-open) .content-preview-popover:not(.sidebar-content-preview) { visibility: hidden; pointer-events: none; }
+  .mobile-menu { display: inline-flex; }
+  .breadcrumb { margin-right: auto; }
+  .topbar { padding-inline: 9px; gap: 5px; }
+  .model-pill { max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
+}

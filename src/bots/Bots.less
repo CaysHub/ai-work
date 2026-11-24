@@ -1,0 +1,15 @@
+.platform-cards { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin-bottom: 20px; }
+.platform-cards button { display: flex; align-items: center; gap: 10px; }
+.platform-cards small,.block { display: block; }
+.platform-icon { display: grid; place-items: center; width: 36px; height: 36px; flex: none; border-radius: 9px; background: #e3f2e3; color: #27644b; font-weight: 750; }
+.platform-icon.feishu { background: #e9f0fe; color: #285fb2; }
+.platform-icon.dingtalk { background: #e4f3fd; color: #185e9d; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 15px; }
+.mcp-url-field { grid-column: 1 / -1; }
+.platform-cards button { border: 1px solid #dde6db; border-radius: 12px; background: #fff; color: #213f31; padding: 14px; text-align: left; position: relative; cursor: pointer; }
+.platform-cards button:hover { border-color: #78a38d; background: #f8fcf7; }
+.platform-cards small,.block { color: #586e61; font-size: 12px; margin-top: 5px; }
+
+@media (max-width: 850px) {
+  .platform-cards { grid-template-columns: 1fr; }
+}

@@ -1,4 +1,4 @@
-import { config } from '../server/config.ts';
+import { config } from '../server/config/env.ts';
 import { registerHooks } from 'node:module';
 
 const origin = new URL(config.model.baseUrl).origin;
